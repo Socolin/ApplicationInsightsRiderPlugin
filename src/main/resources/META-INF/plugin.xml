@@ -1,0 +1,34 @@
+<idea-plugin>
+    <id>fr.socolin.application_insights_plugin</id>
+    <name>Application Insights Log viewer</name>
+    <vendor email="provost.bertrand@gmail.com" url="https://socolin.fr">Socolin</vendor>
+
+    <description><![CDATA[
+    Enable to view application insights logs when debugging an application.
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.xdebugger</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <toolWindow id="Application insights" icon="/toolWindow/plus.png" anchor="right" factoryClass="fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindowFactory"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+    <applicationListeners>
+<!--
+        <listener class="fr.socolin.applicationinsights.listeners.DebugMessageListener"
+                  topic="com.intellij.debugger.impl.DebuggerManagerListener"/>
+-->
+        <listener class="fr.socolin.applicationinsights.listeners.ListenerTest"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
+
+    <idea-version since-build="2019.3"/>
+</idea-plugin>

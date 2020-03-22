@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.16'
+}
+
+group 'fr.socolin'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+    maven { url "https://dl.bintray.com/jetbrains/pty4j" }
+/*
+    maven { url "https://jcenter.bintray.com/org/jetbrains/jediterm" }
+*/
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'com.jetbrains.intellij.platform', name: 'debugger', version: '193.6911.25'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    type = 'RD'
+    version '2019.3.2'
+    downloadSources = false
+}
+patchPluginXml {
+    version = project.version
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
