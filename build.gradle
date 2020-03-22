@@ -12,21 +12,16 @@ repositories {
     mavenCentral()
     maven { url "https://www.jetbrains.com/intellij-repository/releases" }
     maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
-    maven { url "https://dl.bintray.com/jetbrains/pty4j" }
-/*
-    maven { url "https://jcenter.bintray.com/org/jetbrains/jediterm" }
-*/
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'com.jetbrains.intellij.platform', name: 'debugger', version: '193.6911.25'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
-    version '2019.3.2'
+    version '2019.3.4'
     downloadSources = false
 }
 patchPluginXml {

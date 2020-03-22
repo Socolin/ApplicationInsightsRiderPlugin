@@ -1,25 +1,33 @@
 package fr.socolin.applicationinsights.listeners;
 
-
-import com.intellij.debugger.engine.DebugProcess;
-import com.intellij.debugger.engine.DebugProcessListener;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.xdebugger.XDebugProcess;
+import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.XDebuggerManagerListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class DebugMessageListener implements DebugProcessListener {
+public class DebugMessageListener implements XDebuggerManagerListener {
+    private static final Logger log = Logger.getInstance("XDebuggerManagerListener");
+
+    // XDebuggerManager.TOPIC
+    public DebugMessageListener() {
+        // com.intellij.xdebugger.XDebuggerManager.TOPIC;
+        log.warn("create DebugMessageListener");
+    }
 
     @Override
-    public void processAttached(@NotNull DebugProcess process) {
+    public void processStarted(@NotNull XDebugProcess debugProcess) {
+        log.warn("processStarted");
+    }
 
-    }
-}
-/*
-import com.intellij.debugger.impl.DebuggerManagerListener;
-import com.intellij.debugger.impl.DebuggerSession;
-public class DebugMessageListener implements DebuggerManagerListener {
     @Override
-    public void sessionAttached(DebuggerSession session) {
-        System.out.println("hello");
+    public void processStopped(@NotNull XDebugProcess debugProcess) {
+        log.warn("processStopped");
     }
-    //        XDebuggerManager.getInstance(session.getProject()).getDebugSessions()[0].getDebugProcess();
+
+    @Override
+    public void currentSessionChanged(@Nullable XDebugSession previousSession, @Nullable XDebugSession currentSession) {
+        log.warn("currentSessionChanged");
+    }
 }
-*/

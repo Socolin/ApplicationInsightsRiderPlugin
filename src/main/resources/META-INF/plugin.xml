@@ -22,10 +22,8 @@
     </actions>
 
     <applicationListeners>
-<!--
         <listener class="fr.socolin.applicationinsights.listeners.DebugMessageListener"
-                  topic="com.intellij.debugger.impl.DebuggerManagerListener"/>
--->
+                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
         <listener class="fr.socolin.applicationinsights.listeners.ListenerTest"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
