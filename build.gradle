@@ -19,6 +19,11 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
 }
 
+publishPlugin {
+    channels 'alpha'
+    token intellijPublishToken
+}
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
