@@ -27,8 +27,10 @@ public class TelemetryFactory {
                 telemetryData = gson.fromJson(data, MessageData.class);
                 break;
             case Request:
+                telemetryData = gson.fromJson(data, RequestData.class);
                 break;
             case Exception:
+                telemetryData = gson.fromJson(data, ExceptionData.class);
                 break;
             case Metric:
                 telemetryData = gson.fromJson(data, MetricData.class);

@@ -3,10 +3,7 @@ package fr.socolin.applicationinsights.toolwindows.renderers;
 import com.google.gson.JsonObject;
 import com.intellij.ui.JBColor;
 import fr.socolin.applicationinsights.Telemetry;
-import fr.socolin.applicationinsights.metricdata.EventData;
-import fr.socolin.applicationinsights.metricdata.MessageData;
-import fr.socolin.applicationinsights.metricdata.MetricData;
-import fr.socolin.applicationinsights.metricdata.RemoteDependencyData;
+import fr.socolin.applicationinsights.metricdata.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,34 +18,33 @@ public class TelemetryRender extends TelemetryRenderBase {
         super.setForeground(JBColor.foreground());
 
         Telemetry telemetry = (Telemetry) value;
-        JsonObject data = telemetry.getJsonObject().get("data").getAsJsonObject();
         switch (telemetry.getType()) {
             case Exception: {
-                JsonObject baseData = data.get("baseData").getAsJsonObject();
-                String severityLevel = baseData.get("severityLevel").getAsString();
-                if ("Error".equals(severityLevel)) {
+                ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
+
+                if ("Error".equals(exceptionData.severityLevel)) {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
-                } else if ("Warning".equals(severityLevel)) {
+                } else if ("Warning".equals(exceptionData.severityLevel)) {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
                 } else {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
                 }
-                String message = baseData.get("exceptions").getAsJsonArray().get(0).getAsJsonObject().get("message").getAsString();
-                super.setText(severityLevel + " - " + message);
+
+                String message = exceptionData.exceptions.get(0).message;
+                super.setText(exceptionData.severityLevel + " - " + message);
                 break;
             }
             case Request: {
-                JsonObject baseData = data.get("baseData").getAsJsonObject();
-                String operationName = baseData.get("name").getAsString();
-                String responseCode = baseData.get("responseCode").getAsString();
-                if (responseCode.startsWith("5")) {
+                RequestData requestData = telemetry.getData(RequestData.class);
+
+                if (requestData.responseCode.startsWith("5")) {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
-                } else if (responseCode.startsWith("4")) {
+                } else if (requestData.responseCode.startsWith("4")) {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Warning", JBColor.orange));
                 } else {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
                 }
-                super.setText(responseCode + " - " + operationName);
+                super.setText(requestData.responseCode + " - " + requestData.name);
                 break;
             }
             case Metric: {
@@ -73,12 +69,11 @@ public class TelemetryRender extends TelemetryRenderBase {
                 }
 
                 if (remoteDependencyData.type != null && remoteDependencyData.type.equals("SQL")) {
-                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target  + " - " + remoteDependencyData.data);
-                }
-                else if (remoteDependencyData.type != null && remoteDependencyData.type.equals("Http")) {
-                    super.setText(remoteDependencyData.type + " - " +  remoteDependencyData.resultCode + " - " + remoteDependencyData.name);
+                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data);
+                } else if (remoteDependencyData.type != null && remoteDependencyData.type.equals("Http")) {
+                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.resultCode + " - " + remoteDependencyData.name);
                 } else {
-                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target  + " - " + remoteDependencyData.data + " - " + remoteDependencyData.name);
+                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data + " - " + remoteDependencyData.name);
                 }
                 break;
             }
