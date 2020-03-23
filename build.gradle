@@ -6,12 +6,24 @@ plugins {
 group 'fr.socolin'
 version '1.0-SNAPSHOT'
 
+ext.testEnv = false
+// ext.buildType = 'stable'
+ext.buildType = 'eap'
+
+if (ext.buildType == 'eap') {
+    version = "$version-EAP"
+}
+
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
-    maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
+    if (project.ext.buildType == 'stable') {
+        maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    }
+    if (project.ext.buildType == 'eap') {
+        maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
+    }
 }
 
 dependencies {
@@ -24,10 +36,26 @@ publishPlugin {
     token intellijPublishToken
 }
 
+if (!ext.testEnv) {
+    sourceSets {
+        main {
+            resources {
+                exclude '/test-output.txt'
+            }
+        }
+    }
+}
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
-    version '2019.3.4'
+
+    if (project.ext.buildType == 'stable') {
+        version '2019.3.4'
+    } else if (project.ext.buildType == 'eap') {
+        version '2020.1-EAP4-SNAPSHOT'
+    }
+
     downloadSources = false
 }
 patchPluginXml {
