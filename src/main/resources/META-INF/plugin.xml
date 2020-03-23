@@ -1,10 +1,12 @@
 <idea-plugin>
-    <id>fr.socolin.application_insights_plugin</id>
-    <name>Application Insights Log viewer</name>
+    <id>fr.socolin.application-insights-debug-log-viewer</id>
+    <name>ApplicationInsights Debug Log Viewer</name>
     <vendor email="provost.bertrand@gmail.com" url="https://socolin.fr">Socolin</vendor>
 
     <description><![CDATA[
+    WIP
     Enable to view application insights logs when debugging an application.
+    https://github.com/Socolin/ApplicationInsightsRiderPlugin
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

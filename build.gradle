@@ -28,6 +28,7 @@ intellij {
 patchPluginXml {
     version = project.version
     changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+Initial version
+- Display log from Application insights in a tool window
+"""
 }
