@@ -25,9 +25,13 @@ import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AppInsightsToolWindow {
     private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
@@ -40,6 +44,7 @@ public class AppInsightsToolWindow {
     private JTable appInsightsLogsTable;
     private JButton refreshButton;
     private EditorTextField editor;
+    private JButton filterButton;
     private ArrayList<Telemetry> telemetries;
 
 
@@ -75,30 +80,15 @@ public class AppInsightsToolWindow {
         });
 
         refreshButton.addActionListener(e -> {
-            XDebugSession debugSession = XDebuggerManager.getInstance(project).getCurrentSession();
-            if (debugSession == null)
-                return;
-            XDebugProcess process = debugSession.getDebugProcess();
-            DotNetDebugProcess dotNetDebugProcess = (DotNetDebugProcess) process;
-
-            String debugOutputContent = dotNetDebugProcess.getDebuggerOutputConsole().getText();
-            String[] lines = debugOutputContent.split("\r?\n");
-
-/*
-            ArrayList<String> lines = new ArrayList<>();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(AppInsightsToolWindow.class.getResourceAsStream("/test-output.txt")));
-            String l;
-            try {
-                while ((l = bufferedReader.readLine()) != null) {
-                    lines.add(l);
-                }
-            } catch (IOException ex) {
-
+            List<String> lines = readLinesFromTestFile();
+            if (lines == null) {
+                lines = readLinesFromDebugOutputConsole(project);
             }
-*/
+            if (lines == null) {
+                return;
+            }
+
             ArrayList<Telemetry> telemetries = new ArrayList<>();
-
-
             for (String line : lines) {
                 if (!line.startsWith("category: Application Insights Telemetry")) {
                     continue;
@@ -115,6 +105,37 @@ public class AppInsightsToolWindow {
             this.telemetries = telemetries;
         });
 
+    }
+
+    private List<String> readLinesFromDebugOutputConsole(Project project) {
+        XDebugSession debugSession = XDebuggerManager.getInstance(project).getCurrentSession();
+        if (debugSession == null)
+            return null;
+        XDebugProcess process = debugSession.getDebugProcess();
+        DotNetDebugProcess dotNetDebugProcess = (DotNetDebugProcess) process;
+
+        String debugOutputContent = dotNetDebugProcess.getDebuggerOutputConsole().getText();
+        String[] lines = debugOutputContent.split("\r?\n");
+        return Arrays.stream(lines).collect(Collectors.toList());
+    }
+
+    private List<String> readLinesFromTestFile() {
+        ArrayList<String> lines = new ArrayList<>();
+        InputStream resourceAsStream = AppInsightsToolWindow.class.getResourceAsStream("/test-output.txt");
+        if (resourceAsStream == null) {
+            return null;
+        }
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resourceAsStream));
+        String l;
+        try {
+            while ((l = bufferedReader.readLine()) != null) {
+                lines.add(l);
+            }
+        } catch (IOException ex) {
+
+        }
+        return lines;
     }
 
 

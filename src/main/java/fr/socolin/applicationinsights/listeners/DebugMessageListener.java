@@ -3,6 +3,7 @@ package fr.socolin.applicationinsights.listeners;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.XDebuggerManagerListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +13,6 @@ public class DebugMessageListener implements XDebuggerManagerListener {
 
     // XDebuggerManager.TOPIC
     public DebugMessageListener() {
-        // com.intellij.xdebugger.XDebuggerManager.TOPIC;
         log.warn("create DebugMessageListener");
     }
 
