@@ -8,7 +8,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.LanguageTextField;
 import fr.socolin.applicationinsights.*;
@@ -20,12 +19,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class AppInsightsToolWindow {
+    private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
     private final Project project;
-    private final ToolWindow toolWindow;
 
     private JPanel mainPanel;
     private JTable appInsightsLogsTable;
@@ -43,15 +41,15 @@ public class AppInsightsToolWindow {
     private TelemetryTableModel telemetryTableModel;
 
 
-    public AppInsightsToolWindow(Project project, ToolWindow toolWindow) {
+    public AppInsightsToolWindow(Project project) {
         this.project = project;
-        this.toolWindow = toolWindow;
 
         initTelemetryTypeFilters();
 
         editor.setOneLineMode(false);
         editor.setFileType(JsonFileType.INSTANCE);
 
+        splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
 
         appInsightsLogsTable.setDefaultRenderer(TelemetryType.class, new TelemetryTypeRender());
@@ -70,8 +68,6 @@ public class AppInsightsToolWindow {
             Document document = EditorFactory.getInstance().createDocument(gson.toJson(telemetry.getJsonObject()));
             editor.setDocument(document);
         });
-
-        ApplicationInsightsSessionManager.getInstance().registerUi(this);
     }
 
     private void initTelemetryTypeFilters() {
@@ -128,6 +124,7 @@ public class AppInsightsToolWindow {
     private void updateEnabledTelemetryTypeCheckBoxes(@NotNull ApplicationInsightsSession applicationInsightsSession) {
         for (JCheckBox checkBox : telemetryTypesCheckBoxes) {
             TelemetryType telemetryType = (TelemetryType) checkBox.getClientProperty("TelemetryType");
+            log.trace(telemetryType + " - " + applicationInsightsSession.isEnabled(telemetryType));
             checkBox.setSelected(applicationInsightsSession.isEnabled(telemetryType));
         }
     }

@@ -14,9 +14,9 @@
         </constraints>
         <properties>
           <continuousLayout value="false"/>
-          <dividerLocation value="250"/>
+          <dividerLocation value="350"/>
           <oneTouchExpandable value="false"/>
-          <orientation value="0"/>
+          <orientation value="1"/>
           <resizeWeight value="1.0"/>
         </properties>
         <border type="none"/>

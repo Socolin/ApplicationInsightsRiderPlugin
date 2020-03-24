@@ -1,5 +1,7 @@
 package fr.socolin.applicationinsights;
 
+import com.intellij.ui.content.Content;
+import com.intellij.util.IconUtil;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
@@ -12,8 +14,6 @@ import java.util.Map;
 public class ApplicationInsightsSessionManager {
     private static ApplicationInsightsSessionManager instance;
     private TelemetryFactory telemetryFactory = new TelemetryFactory();
-    @Nullable
-    private AppInsightsToolWindow appInsightsToolWindow;
 
     public static ApplicationInsightsSessionManager getInstance() {
         if (instance == null)
@@ -37,6 +37,7 @@ public class ApplicationInsightsSessionManager {
         );
         sessions.put(debugProcess, applicationInsightsSession);
         applicationInsightsSession.startListeningToOutputDebugMessage();
+
         return applicationInsightsSession;
     }
 
@@ -45,15 +46,21 @@ public class ApplicationInsightsSessionManager {
     }
 
     public void selectSession(@Nullable XDebugSession debugSession) {
-        if (this.appInsightsToolWindow != null) {
-            if (debugSession != null) {
-                ApplicationInsightsSession applicationInsightsSession = sessions.get(debugSession.getDebugProcess());
-                this.appInsightsToolWindow.selectSession(applicationInsightsSession);
-            }
-        }
-    }
+        if (debugSession == null)
+            return;
 
-    public void registerUi(AppInsightsToolWindow appInsightsToolWindow) {
-        this.appInsightsToolWindow = appInsightsToolWindow;
+        AppInsightsToolWindow appInsightsToolWindow = new AppInsightsToolWindow(debugSession.getProject());
+
+        Content content = debugSession.getUI().createContent(
+                "hello",
+                appInsightsToolWindow.getContent(),
+                "Application Insights",
+                IconUtil.getAddIcon(),
+                null
+        );
+        debugSession.getUI().addContent(content);
+
+        ApplicationInsightsSession applicationInsightsSession = sessions.get(debugSession.getDebugProcess());
+        appInsightsToolWindow.selectSession(applicationInsightsSession);
     }
 }
