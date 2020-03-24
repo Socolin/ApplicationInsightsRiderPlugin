@@ -44,10 +44,12 @@ public class ApplicationInsightsSessionManager {
 
     }
 
-    public void selectSession(XDebugSession debugSession) {
+    public void selectSession(@Nullable XDebugSession debugSession) {
         if (this.appInsightsToolWindow != null) {
-            ApplicationInsightsSession applicationInsightsSession = sessions.get(debugSession.getDebugProcess());
-            this.appInsightsToolWindow.selectSession(applicationInsightsSession);
+            if (debugSession != null) {
+                ApplicationInsightsSession applicationInsightsSession = sessions.get(debugSession.getDebugProcess());
+                this.appInsightsToolWindow.selectSession(applicationInsightsSession);
+            }
         }
     }
 
