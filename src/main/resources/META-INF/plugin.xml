@@ -6,7 +6,7 @@
     <description><![CDATA[
 
     This plugin allow you to see, instantly, in a nice way [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) logs.
-    To use just start in debug a program or attach to a running one that use Application Insights.
+    To use just start a program with the debugger or attach to a running one that use Application Insights.
     The logs will appear in the tool window named Application Insights.
 
     **Still in early development stage**
