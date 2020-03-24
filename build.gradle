@@ -6,10 +6,8 @@ plugins {
 group 'fr.socolin'
 version '1.0.2'
 
-ext.buildType = 'stable'
-// ext.buildType = 'eap'
 
-if (ext.buildType == 'eap') {
+if (buildType == 'eap') {
     version = "$version-EAP"
 }
 
@@ -31,7 +29,11 @@ dependencies {
 }
 
 publishPlugin {
-    channels 'alpha'
+    if (buildType == 'eap') {
+        channels 'eap'
+    } else {
+        channels 'alpha'
+    }
     token intellijPublishToken
 }
 
@@ -39,9 +41,9 @@ publishPlugin {
 intellij {
     type = 'RD'
 
-    if (project.ext.buildType == 'stable') {
+    if (buildType == 'stable') {
         version '2019.3.4'
-    } else if (project.ext.buildType == 'eap') {
+    } else if (buildType == 'eap') {
         version '2020.1-EAP4-SNAPSHOT'
     }
 

@@ -12,7 +12,7 @@ To edit and test the plugin, just open this project with [InteliJ IDEA](https://
 ### Build
 
 ```
-$ ./gradlew :buildPlugin 
+$ ./gradlew :buildPlugin -PbuildType=stable
 ```
 
 Then the plugins will be in `build/distributions`
