@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.socolin.applicationinsights.metricdata.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class TelemetryFactory {
     private final JsonParser jsonParser;
@@ -45,5 +47,17 @@ public class TelemetryFactory {
                 break;
         }
         return new Telemetry(type, json, jsonObject, telemetryData);
+    }
+
+    @Nullable
+    public Telemetry tryCreateFromDebugOutputLog(@NotNull String output) {
+        if (!output.startsWith("category: Application Insights Telemetry")) {
+            return null;
+        }
+
+        // FIXME: We should also parse what is in parenthesis (Filtered log, unconfigured)
+        String json = output.substring(output.indexOf('{'), output.lastIndexOf('}') + 1);
+
+        return fromJson(json);
     }
 }

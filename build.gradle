@@ -4,11 +4,10 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0-SNAPSHOT'
+version '1.0.2'
 
-ext.testEnv = false
-// ext.buildType = 'stable'
-ext.buildType = 'eap'
+ext.buildType = 'stable'
+// ext.buildType = 'eap'
 
 if (ext.buildType == 'eap') {
     version = "$version-EAP"
@@ -36,16 +35,6 @@ publishPlugin {
     token intellijPublishToken
 }
 
-if (!ext.testEnv) {
-    sourceSets {
-        main {
-            resources {
-                exclude '/test-output.txt'
-            }
-        }
-    }
-}
-
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
@@ -62,6 +51,6 @@ patchPluginXml {
     version = project.version
     changeNotes """
 Initial version
-- Display log from Application insights in a tool window
+- Display log from [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) in a tool window when debugging an application that use it.
 """
 }

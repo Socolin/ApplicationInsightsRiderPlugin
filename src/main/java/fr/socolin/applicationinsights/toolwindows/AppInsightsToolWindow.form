@@ -3,27 +3,18 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="638" height="578"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <component id="cbe19" class="javax.swing.JButton" binding="refreshButton" default-binding="true">
+      <splitpane id="bcd7f" binding="splitPane">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Button"/>
-        </properties>
-      </component>
-      <splitpane id="bcd7f">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="200" height="200"/>
-          </grid>
-        </constraints>
-        <properties>
-          <dividerLocation value="190"/>
+          <continuousLayout value="false"/>
+          <dividerLocation value="250"/>
           <oneTouchExpandable value="false"/>
           <orientation value="0"/>
           <resizeWeight value="1.0"/>
@@ -58,6 +49,51 @@
           </scrollpane>
         </children>
       </splitpane>
+      <grid id="53d4d" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="1" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="81b36" class="javax.swing.JCheckBox" binding="metricCheckBox">
+            <constraints/>
+            <properties>
+              <text value="Metric"/>
+            </properties>
+          </component>
+          <component id="700f7" class="javax.swing.JCheckBox" binding="exceptionCheckBox" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Exception"/>
+            </properties>
+          </component>
+          <component id="866e3" class="javax.swing.JCheckBox" binding="messageCheckBox" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Message"/>
+            </properties>
+          </component>
+          <component id="87afa" class="javax.swing.JCheckBox" binding="dependencyCheckBox" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Dependency"/>
+            </properties>
+          </component>
+          <component id="dc2cc" class="javax.swing.JCheckBox" binding="requestCheckBox" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Request"/>
+            </properties>
+          </component>
+          <component id="c3250" class="javax.swing.JCheckBox" binding="eventCheckBox" default-binding="true">
+            <constraints/>
+            <properties>
+              <text value="Event"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
     </children>
   </grid>
 </form>

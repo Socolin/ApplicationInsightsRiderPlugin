@@ -2,9 +2,11 @@ package fr.socolin.applicationinsights.toolwindows;
 
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
 public class TelemetryTableModel extends AbstractTableModel {
@@ -14,10 +16,10 @@ public class TelemetryTableModel extends AbstractTableModel {
     private final Class<?>[] columnClass = new Class[]{
             Date.class, TelemetryType.class, Telemetry.class
     };
-    private ArrayList<Telemetry> telemetries;
+    private List<Telemetry> telemetries;
 
-    public TelemetryTableModel(ArrayList<Telemetry> telemetries) {
-        this.telemetries = telemetries;
+    public TelemetryTableModel() {
+        this.telemetries = new ArrayList<>();
     }
 
     @Override
@@ -53,5 +55,33 @@ public class TelemetryTableModel extends AbstractTableModel {
             default:
                 return null;
         }
+    }
+
+    public void clear() {
+        int size = this.telemetries.size();
+        this.telemetries.clear();
+        this.fireTableRowsDeleted(0, size - 1);
+    }
+
+    public void addRow(Telemetry telemetry) {
+        this.telemetries.add(telemetry);
+        this.fireTableRowsInserted(this.telemetries.size() - 1, this.telemetries.size() - 1);
+    }
+
+    public void setRows(List<Telemetry> telemetries) {
+        int previousSize = this.telemetries.size();
+        this.telemetries.clear();
+        this.fireTableRowsDeleted(0, previousSize - 1);
+        this.telemetries.addAll(telemetries);
+        this.fireTableRowsInserted(0, this.telemetries.size() - 1);
+    }
+
+    @Nullable
+    public Telemetry getRow(int selectedRow) {
+        if (selectedRow < 0)
+            return null;
+        if (selectedRow >= this.getRowCount())
+            return null;
+        return telemetries.get(selectedRow);
     }
 }

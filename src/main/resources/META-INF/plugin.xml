@@ -1,12 +1,18 @@
 <idea-plugin>
     <id>fr.socolin.application-insights-debug-log-viewer</id>
-    <name>ApplicationInsights Debug Log Viewer</name>
+    <name>Application Insights Debug Log Viewer</name>
     <vendor email="provost.bertrand@gmail.com" url="https://socolin.fr">Socolin</vendor>
 
     <description><![CDATA[
-    WIP
-    Enable to view application insights logs when debugging an application.
-    https://github.com/Socolin/ApplicationInsightsRiderPlugin
+
+    This plugin allow you to see, instantly, in a nice way [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) logs.
+    To use just start in debug a program or attach to a running one that use Application Insights.
+    The logs will appear in the tool window named Application Insights.
+
+    **Still in early development stage**
+
+    You can report bugs or suggest amelioration on [github](https://github.com/Socolin/ApplicationInsightsRiderPlugin)
+
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -25,11 +31,13 @@
     </actions>
 
     <applicationListeners>
-        <listener class="fr.socolin.applicationinsights.listeners.DebugMessageListener"
-                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
         <listener class="fr.socolin.applicationinsights.listeners.ListenerTest"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+    <projectListeners>
+        <listener class="fr.socolin.applicationinsights.listeners.DebugMessageListener"
+                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
+    </projectListeners>
 
-    <idea-version since-build="2019.3"/>
+    <idea-version since-build="2019.3" until-build="2020.1.*"/>
 </idea-plugin>

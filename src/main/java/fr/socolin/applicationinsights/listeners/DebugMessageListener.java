@@ -5,6 +5,7 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.XDebuggerManagerListener;
+import fr.socolin.applicationinsights.ApplicationInsightsSessionManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,16 +19,16 @@ public class DebugMessageListener implements XDebuggerManagerListener {
 
     @Override
     public void processStarted(@NotNull XDebugProcess debugProcess) {
-        log.warn("processStarted");
+        ApplicationInsightsSessionManager.getInstance().startSession(debugProcess);
     }
 
     @Override
     public void processStopped(@NotNull XDebugProcess debugProcess) {
-        log.warn("processStopped");
+        ApplicationInsightsSessionManager.getInstance().endSession(debugProcess);
     }
 
     @Override
     public void currentSessionChanged(@Nullable XDebugSession previousSession, @Nullable XDebugSession currentSession) {
-        log.warn("currentSessionChanged");
+        ApplicationInsightsSessionManager.getInstance().selectSession(currentSession);
     }
 }
