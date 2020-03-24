@@ -2,6 +2,7 @@ package fr.socolin.applicationinsights;
 
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
+import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public class ApplicationInsightsSession {
             if (telemetry != null) {
                 addTelemetry(telemetry);
             }
-            return null;
+            return Unit.INSTANCE;
         });
     }
 
