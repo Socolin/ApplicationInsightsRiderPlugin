@@ -20,8 +20,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Gradle
-      run: gradle buildPlugin -PintellijPublishToken=unk
+    - name: Build stable version
+      run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=stable
+    - name: Build eap version
+      run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
