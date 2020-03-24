@@ -71,9 +71,9 @@ public class TelemetryTableModel extends AbstractTableModel {
     public void setRows(List<Telemetry> telemetries) {
         int previousSize = this.telemetries.size();
         this.telemetries.clear();
-        this.fireTableRowsDeleted(0, previousSize - 1);
+        this.fireTableRowsDeleted(0, Math.max(0, previousSize - 1));
         this.telemetries.addAll(telemetries);
-        this.fireTableRowsInserted(0, this.telemetries.size() - 1);
+        this.fireTableRowsInserted(0, Math.max(0, this.telemetries.size() - 1));
     }
 
     @Nullable
