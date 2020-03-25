@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.2'
+version '1.0.3'
 
 
 if (buildType == 'eap') {
@@ -52,7 +52,21 @@ intellij {
 patchPluginXml {
     version = project.version
     changeNotes """
-Initial version
-- Display log from [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) in a tool window when debugging an application that use it.
+<ul>
+    <li>1.0.3</li>
+    <ul>
+        <li>Move Application Insights tool window to the debugger panel, in a new tab</li>
+        <li>Selecting an exception in logs will go to where this exception was throw in the code</li>
+    </ul>
+    <li>1.0.2</li>
+    <ul>
+        <li>Remove "Refresh" button, logs are now collected automatically when starting a debug session</li>
+        <li>Add option to filter log by type</li>
+    </ul>
+    <li>1.0.2</li>
+    <ul>
+        <li>Initial version</li>
+    </ul>
+</ul>
 """
 }

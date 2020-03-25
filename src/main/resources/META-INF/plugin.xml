@@ -5,13 +5,13 @@
 
     <description><![CDATA[
 
-    This plugin allow you to see, instantly, in a nice way [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) logs.
-    To use just start a program with the debugger or attach to a running one that use Application Insights.
-    The logs will appear in the tool window named Application Insights.
+    <p>This plugin allow you to see, instantly, in a nice way [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) logs.</p>
+    <p>To use just start a program with the debugger or attach to a running one that use Application Insights.</p>
+    <p>The logs will appear in the tool window named Application Insights.</p>
 
-    **Still in early development stage**
+    <strong>Still in early development stage</strong>
 
-    You can report bugs or suggest amelioration on [github](https://github.com/Socolin/ApplicationInsightsRiderPlugin)
+    <p>You can report bugs or suggest amelioration on <a href="https://github.com/Socolin/ApplicationInsightsRiderPlugin">github</a></p>
 
     ]]></description>
 
