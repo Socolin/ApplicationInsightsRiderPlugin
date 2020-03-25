@@ -7,10 +7,16 @@ import com.intellij.json.JsonLanguage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.util.OpenSourceUtil;
+import com.jetbrains.rider.debugger.DotNetDebugProcess;
 import fr.socolin.applicationinsights.*;
+import fr.socolin.applicationinsights.metricdata.ExceptionData;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
@@ -67,6 +73,25 @@ public class AppInsightsToolWindow {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             Document document = EditorFactory.getInstance().createDocument(gson.toJson(telemetry.getJsonObject()));
             editor.setDocument(document);
+
+            if (telemetry.getType() == TelemetryType.Exception) {
+                ExceptionData data = telemetry.getData(ExceptionData.class);
+                for (ExceptionData.ExceptionDetailData exception : data.exceptions) {
+                    boolean found = false;
+                    for (ExceptionData.ExceptionDetailData.Stack stack : exception.parsedStack) {
+                        if (stack.fileName != null) {
+                            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + stack.fileName);
+                            if (file != null) {
+                                OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line),0));
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (found)
+                        break;
+                }
+            }
         });
     }
 
