@@ -24,10 +24,17 @@ jobs:
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=stable
     - name: Build eap version
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1.0.0
+    - name: Upload eap artifact
+      uses: actions/upload-artifact@v2-preview
       with:
         # Artifact name
-        name: plugin
+        name: eap.zip
         # Directory containing files to upload
-        path: build/distributions/
+        path: build/distributions/*-EAP.zip
+    - name: Upload stable artifact
+      uses: actions/upload-artifact@v2-preview
+      with:
+        # Artifact name
+        name: stable.zip
+        # Directory containing files to upload
+        path: build/distributions/*[0-9]-EAP.zip
