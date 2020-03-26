@@ -53,6 +53,11 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
+    <li>1.0.4</li>
+    <ul>
+        <li>Add numbers of each metrics. It allow to notify there are metrics coming in even when they are filtered out</li>
+        <li>Small improvement on UI</li>
+    </ul>
     <li>1.0.3</li>
     <ul>
         <li>Move Application Insights tool window to the debugger panel, in a new tab</li>

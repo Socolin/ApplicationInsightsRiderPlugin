@@ -12,11 +12,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.EditorTextField;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.util.OpenSourceUtil;
-import com.jetbrains.rider.debugger.DotNetDebugProcess;
-import fr.socolin.applicationinsights.*;
+import com.intellij.util.ui.JBEmptyBorder;
+import com.intellij.util.ui.JBUI;
+import fr.socolin.applicationinsights.ApplicationInsightsSession;
+import fr.socolin.applicationinsights.Telemetry;
+import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.ExceptionData;
+import fr.socolin.applicationinsights.toolwindows.components.ColorBox;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
@@ -24,12 +29,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ItemEvent;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AppInsightsToolWindow {
     private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
     private final Project project;
+    private Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
 
     private JPanel mainPanel;
     private JTable appInsightsLogsTable;
@@ -41,7 +51,21 @@ public class AppInsightsToolWindow {
     private JCheckBox requestCheckBox;
     private JCheckBox eventCheckBox;
     private JSplitPane splitPane;
+    private JLabel metricCounter;
+    private JLabel exceptionCounter;
+    private JLabel messageCounter;
+    private JLabel dependencyCounter;
+    private JLabel requestCounter;
+    private JLabel eventCounter;
+    private ColorBox metricColorBox;
+    private ColorBox exceptionColorBox;
+    private ColorBox messageColorBox;
+    private ColorBox dependencyColorBox;
+    private ColorBox requestColorBox;
+    private ColorBox eventColorBox;
+
     private JCheckBox[] telemetryTypesCheckBoxes;
+    private JLabel[] telemetryTypesCounter;
     @Nullable
     private ApplicationInsightsSession activeApplicationInsightsSession;
     private TelemetryTableModel telemetryTableModel;
@@ -103,7 +127,29 @@ public class AppInsightsToolWindow {
         requestCheckBox.putClientProperty("TelemetryType", TelemetryType.Request);
         eventCheckBox.putClientProperty("TelemetryType", TelemetryType.Event);
 
+        metricCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+        exceptionCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+        messageCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+        dependencyCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+        requestCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+        eventCheckBox.setBorder(JBUI.Borders.emptyRight(8));
+
+        metricCounter.putClientProperty("TelemetryType", TelemetryType.Metric);
+        exceptionCounter.putClientProperty("TelemetryType", TelemetryType.Exception);
+        messageCounter.putClientProperty("TelemetryType", TelemetryType.Message);
+        dependencyCounter.putClientProperty("TelemetryType", TelemetryType.RemoteDependency);
+        requestCounter.putClientProperty("TelemetryType", TelemetryType.Request);
+        eventCounter.putClientProperty("TelemetryType", TelemetryType.Event);
+
+        metricCounter.setBorder(JBUI.Borders.emptyRight(8));
+        exceptionCounter.setBorder(JBUI.Borders.emptyRight(8));
+        messageCounter.setBorder(JBUI.Borders.emptyRight(8));
+        dependencyCounter.setBorder(JBUI.Borders.emptyRight(8));
+        requestCounter.setBorder(JBUI.Borders.emptyRight(8));
+        eventCounter.setBorder(JBUI.Borders.emptyRight(8));
+
         telemetryTypesCheckBoxes = new JCheckBox[]{metricCheckBox, exceptionCheckBox, messageCheckBox, dependencyCheckBox, requestCheckBox, eventCheckBox};
+        telemetryTypesCounter = new JLabel[]{metricCounter, exceptionCounter, messageCounter, dependencyCounter, requestCounter, eventCounter};
 
         for (JCheckBox checkBox : telemetryTypesCheckBoxes) {
             TelemetryType telemetryType = (TelemetryType) checkBox.getClientProperty("TelemetryType");
@@ -123,10 +169,6 @@ public class AppInsightsToolWindow {
         return mainPanel;
     }
 
-    private void createUIComponents() {
-        editor = new LanguageTextField(JsonLanguage.INSTANCE, project, "");
-    }
-
     public void selectSession(@Nullable ApplicationInsightsSession applicationInsightsSession) {
         this.activeApplicationInsightsSession = applicationInsightsSession;
         if (applicationInsightsSession == null) {
@@ -135,15 +177,48 @@ public class AppInsightsToolWindow {
 
         telemetryTableModel = new TelemetryTableModel();
         telemetryTableModel.setRows(applicationInsightsSession.getFilteredTelemetries());
-        applicationInsightsSession.registerChanges(telemetryTableModel::addRow, telemetryTableModel::setRows);
+        applicationInsightsSession.registerChanges(this::addTelemetry, telemetryTableModel::setRows, this::setTelemetries);
         appInsightsLogsTable.setModel(telemetryTableModel);
 
         appInsightsLogsTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(90);
-        appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(90);
-        appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(90);
+        appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(130);
+        appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(100);
 
         this.updateEnabledTelemetryTypeCheckBoxes(applicationInsightsSession);
+    }
+
+    private void setTelemetries(List<Telemetry> telemetries) {
+        telemetryCountPerType.clear();
+         for (Telemetry telemetry : telemetries) {
+             telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
+         }
+        updateTelemetryTypeCounter(null);
+    }
+
+    private void addTelemetry(Telemetry telemetry, Boolean visible) {
+        if (visible) {
+            telemetryTableModel.addRow(telemetry);
+        }
+        telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
+        updateTelemetryTypeCounter(telemetry.getType());
+    }
+
+    private void updateTelemetryTypeCounter(@Nullable TelemetryType type) {
+        for (JLabel counter : telemetryTypesCounter) {
+            TelemetryType telemetryType = (TelemetryType) counter.getClientProperty("TelemetryType");
+            if (type != null && telemetryType != type)
+                continue;;
+
+            int count = telemetryCountPerType.get(telemetryType);
+            if (count < 1000) {
+                counter.setText(String.valueOf(count));
+            } else if (count < 1000000) {
+                counter.setText(count / 1000 + "K");
+            } else {
+                counter.setText(count / 1000 + "M");
+            }
+        }
     }
 
     private void updateEnabledTelemetryTypeCheckBoxes(@NotNull ApplicationInsightsSession applicationInsightsSession) {
@@ -152,5 +227,16 @@ public class AppInsightsToolWindow {
             log.trace(telemetryType + " - " + applicationInsightsSession.isEnabled(telemetryType));
             checkBox.setSelected(applicationInsightsSession.isEnabled(telemetryType));
         }
+    }
+
+    private void createUIComponents() {
+        editor = new LanguageTextField(JsonLanguage.INSTANCE, project, "");
+
+        metricColorBox= new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Metric", JBColor.gray) );
+        exceptionColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Exception", JBColor.red));
+        messageColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Message", JBColor.orange));
+        dependencyColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.RemoteDependency", JBColor.blue) );
+        requestColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Request", JBColor.green));
+        eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan) );
     }
 }

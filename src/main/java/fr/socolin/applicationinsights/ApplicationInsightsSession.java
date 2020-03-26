@@ -6,6 +6,7 @@ import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -16,9 +17,11 @@ public class ApplicationInsightsSession {
     private DotNetDebugProcess dotNetDebugProcess;
     private Set<TelemetryType> enabledTelemetryTypes = new HashSet<>();
     @Nullable
-    private Consumer<Telemetry> addedTelemetry;
+    private BiConsumer<Telemetry, Boolean> addedTelemetry;
     @Nullable
     private Consumer<List<Telemetry>> updateAllTelemetries;
+    @Nullable
+    private Consumer<List<Telemetry>> updateVisibleTelemetries;
 
     public ApplicationInsightsSession(
             TelemetryFactory telemetryFactory,
@@ -62,8 +65,8 @@ public class ApplicationInsightsSession {
                 visible = true;
             }
         }
-        if (visible && addedTelemetry != null)
-            addedTelemetry.accept(telemetry);
+        if (addedTelemetry != null)
+            addedTelemetry.accept(telemetry, visible);
     }
 
     private void updateFilteredTelemetries() {
@@ -80,9 +83,10 @@ public class ApplicationInsightsSession {
         return this.enabledTelemetryTypes.contains(telemetryType);
     }
 
-    public void registerChanges(Consumer<Telemetry> addedTelemetry, Consumer<List<Telemetry>> updateAllTelemetries) {
+    public void registerChanges(BiConsumer<Telemetry, Boolean> addedTelemetry, Consumer<List<Telemetry>> updateAllTelemetries, Consumer<List<Telemetry>> updateVisibleTelemetries) {
         this.addedTelemetry = addedTelemetry;
         this.updateAllTelemetries = updateAllTelemetries;
+        this.updateVisibleTelemetries = updateVisibleTelemetries;
     }
 
     public List<Telemetry> getFilteredTelemetries() {

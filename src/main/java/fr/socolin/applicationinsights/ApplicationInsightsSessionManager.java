@@ -1,5 +1,6 @@
 package fr.socolin.applicationinsights;
 
+import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.ui.content.Content;
 import com.intellij.util.IconUtil;
 import com.intellij.xdebugger.XDebugProcess;
@@ -52,10 +53,10 @@ public class ApplicationInsightsSessionManager {
         AppInsightsToolWindow appInsightsToolWindow = new AppInsightsToolWindow(debugSession.getProject());
 
         Content content = debugSession.getUI().createContent(
-                "hello",
+                "appinsights",
                 appInsightsToolWindow.getContent(),
                 "Application Insights",
-                IconUtil.getAddIcon(),
+                IconUtil.getAddIcon(), // FIXME replace with icon
                 null
         );
         debugSession.getUI().addContent(content);

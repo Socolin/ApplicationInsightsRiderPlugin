@@ -5,9 +5,7 @@ import fr.socolin.applicationinsights.TelemetryType;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
+import java.util.*;
 
 public class TelemetryTableModel extends AbstractTableModel {
     private final String[] columnNames = new String[]{

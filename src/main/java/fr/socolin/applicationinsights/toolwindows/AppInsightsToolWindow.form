@@ -49,7 +49,7 @@
           </scrollpane>
         </children>
       </splitpane>
-      <grid id="53d4d" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+      <grid id="53d4d" layout-manager="GridBagLayout">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="1" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -57,40 +57,154 @@
         <border type="none"/>
         <children>
           <component id="81b36" class="javax.swing.JCheckBox" binding="metricCheckBox">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Metric"/>
             </properties>
           </component>
           <component id="700f7" class="javax.swing.JCheckBox" binding="exceptionCheckBox" default-binding="true">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Exception"/>
             </properties>
           </component>
           <component id="866e3" class="javax.swing.JCheckBox" binding="messageCheckBox" default-binding="true">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Message"/>
             </properties>
           </component>
           <component id="87afa" class="javax.swing.JCheckBox" binding="dependencyCheckBox" default-binding="true">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="7" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Dependency"/>
             </properties>
           </component>
           <component id="dc2cc" class="javax.swing.JCheckBox" binding="requestCheckBox" default-binding="true">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="9" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Request"/>
             </properties>
           </component>
           <component id="c3250" class="javax.swing.JCheckBox" binding="eventCheckBox" default-binding="true">
-            <constraints/>
+            <constraints>
+              <grid row="0" column="11" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
             <properties>
               <text value="Event"/>
             </properties>
+          </component>
+          <component id="59fe1" class="javax.swing.JLabel" binding="metricCounter">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="a5ba8" class="javax.swing.JLabel" binding="exceptionCounter">
+            <constraints>
+              <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="aa4dd" class="javax.swing.JLabel" binding="messageCounter">
+            <constraints>
+              <grid row="1" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="5718a" class="javax.swing.JLabel" binding="dependencyCounter">
+            <constraints>
+              <grid row="1" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="ca51c" class="javax.swing.JLabel" binding="requestCounter">
+            <constraints>
+              <grid row="1" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="f4241" class="javax.swing.JLabel" binding="eventCounter">
+            <constraints>
+              <grid row="1" column="11" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
+          <component id="1b1ae" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="metricColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="1dc61" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="exceptionColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="2" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="b9e4f" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="messageColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="4" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="ba4e9" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="dependencyColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="6" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="70581" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="requestColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="8" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="57634" class="fr.socolin.applicationinsights.toolwindows.components.ColorBox" binding="eventColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="10" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <gridbag weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties/>
           </component>
         </children>
       </grid>
