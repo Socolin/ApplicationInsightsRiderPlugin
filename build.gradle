@@ -4,8 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.3'
-
+version '1.0.4'
 
 if (buildType == 'eap') {
     version = "$version-EAP"
