@@ -25,9 +25,9 @@ jobs:
     - name: Build eap version
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
     - name: Upload artifact
-      uses: actions/upload-artifact@v2-preview
+      uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
         name: ApplicationInsightsDebugLogViewer
         # Directory containing files to upload
-        path: build/distributions/*
+        path: build/distributions/
