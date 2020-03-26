@@ -30,4 +30,4 @@ jobs:
         # Artifact name
         name: ApplicationInsightsDebugLogViewer
         # Directory containing files to upload
-        path: build/distributions/
+        path: build/distributions/*
