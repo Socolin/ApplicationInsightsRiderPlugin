@@ -24,17 +24,21 @@ jobs:
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=stable
     - name: Build eap version
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
+    - name: Rename eap
+      run: mv build/distributions/*-EAP.zip build/distributions/ApplicationInsightsDebugLogViewer-EAP.zip
+    - name: Rename stable
+      run: mv build/distributions/*[0-9].zip build/distributions/ApplicationInsightsDebugLogViewer.zip
     - name: Upload eap artifact
       uses: actions/upload-artifact@v2-preview
       with:
         # Artifact name
         name: eap.zip
         # Directory containing files to upload
-        path: build/distributions/*-EAP.zip
+        path: build/distributions/ApplicationInsightsDebugLogViewer-EAP.zip
     - name: Upload stable artifact
       uses: actions/upload-artifact@v2-preview
       with:
         # Artifact name
         name: stable.zip
         # Directory containing files to upload
-        path: build/distributions/*[0-9]-EAP.zip
+        path: build/distributions/ApplicationInsightsDebugLogViewer.zip
