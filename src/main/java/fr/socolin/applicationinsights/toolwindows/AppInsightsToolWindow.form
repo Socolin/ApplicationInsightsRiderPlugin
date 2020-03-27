@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindow">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="638" height="578"/>
@@ -10,31 +10,18 @@
     <children>
       <splitpane id="bcd7f" binding="splitPane">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <continuousLayout value="false"/>
-          <dividerLocation value="350"/>
+          <dividerLocation value="351"/>
           <oneTouchExpandable value="false"/>
           <orientation value="1"/>
           <resizeWeight value="1.0"/>
         </properties>
         <border type="none"/>
         <children>
-          <scrollpane id="82f90">
-            <constraints>
-              <splitpane position="left"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="36535" class="javax.swing.JTable" binding="appInsightsLogsTable" default-binding="true">
-                <constraints/>
-                <properties/>
-              </component>
-            </children>
-          </scrollpane>
-          <scrollpane id="51d54">
+          <scrollpane id="fd45c" class="com.intellij.ui.components.JBScrollPane">
             <constraints>
               <splitpane position="right"/>
             </constraints>
@@ -47,6 +34,54 @@
               </component>
             </children>
           </scrollpane>
+          <grid id="7c8f3" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <scrollpane id="82f90">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="36535" class="javax.swing.JTable" binding="appInsightsLogsTable" default-binding="true">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+              <grid id="b9227" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="ae2a1" class="javax.swing.JCheckBox" binding="filterMode">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <actionCommand value=""/>
+                      <text value=""/>
+                    </properties>
+                  </component>
+                  <component id="95f5a" class="com.intellij.ui.components.JBTextField" binding="filter">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties/>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
         </children>
       </splitpane>
       <grid id="53d4d" layout-manager="GridBagLayout">

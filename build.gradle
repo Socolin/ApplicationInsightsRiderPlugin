@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.4'
+version '1.0.5'
 
 if (buildType == 'eap') {
     version = "$version-EAP"
@@ -52,6 +52,10 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
+    <li>1.0.5</li>
+    <ul>
+        <li>Add filter fields. That allow to filtering logs matching the text</li>
+    </ul>
     <li>1.0.4</li>
     <ul>
         <li>Add numbers of each metrics. It allow to notify there are metrics coming in even when they are filtered out</li>

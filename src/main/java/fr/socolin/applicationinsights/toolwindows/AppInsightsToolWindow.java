@@ -14,6 +14,8 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.ui.components.JBTextArea;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
@@ -30,7 +32,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +68,8 @@ public class AppInsightsToolWindow {
     private ColorBox dependencyColorBox;
     private ColorBox requestColorBox;
     private ColorBox eventColorBox;
+    private JBTextField filter;
+    private JCheckBox filterMode;
 
     private JCheckBox[] telemetryTypesCheckBoxes;
     private JLabel[] telemetryTypesCounter;
@@ -87,6 +94,23 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.setDefaultRenderer(Telemetry.class, new TelemetryRender());
         appInsightsLogsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+
+        filter.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (activeApplicationInsightsSession != null)
+                    activeApplicationInsightsSession.updateFilter(filter.getText());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                activeApplicationInsightsSession.updateFilter(filter.getText());
+            }
+        });
         appInsightsLogsTable.getSelectionModel().addListSelectionListener(e -> {
             Telemetry telemetry = telemetryTableModel.getRow(appInsightsLogsTable.getSelectedRow());
             if (telemetry == null) {
@@ -228,6 +252,7 @@ public class AppInsightsToolWindow {
             checkBox.setSelected(applicationInsightsSession.isEnabled(telemetryType));
         }
     }
+    // "ColorPalette.$textInputBackground": "#282828"
 
     private void createUIComponents() {
         editor = new LanguageTextField(JsonLanguage.INSTANCE, project, "");

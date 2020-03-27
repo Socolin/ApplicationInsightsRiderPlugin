@@ -26,7 +26,6 @@ Then the plugins will be in `build/distributions`
 - Filtered log indicator
 - Autoscroll option
 - Wrap / Unwarp line in json display
-- Filter box
 - Group by operationId
 - Alternative display of json section with clickable things like excetpions, or button to filter similar log (operationId, or other properties)
 

@@ -22,6 +22,7 @@ public class ApplicationInsightsSession {
     private Consumer<List<Telemetry>> updateAllTelemetries;
     @Nullable
     private Consumer<List<Telemetry>> updateVisibleTelemetries;
+    private String filter = "";
 
     public ApplicationInsightsSession(
             TelemetryFactory telemetryFactory,
@@ -73,6 +74,7 @@ public class ApplicationInsightsSession {
         synchronized (telemetries) {
             filteredTelemetries = telemetries.stream()
                     .filter(e -> enabledTelemetryTypes.contains(e.getType()))
+                    .filter(e -> filter.equals("") || e.getJson().contains(filter))
                     .collect(Collectors.toList());
         }
         if (updateAllTelemetries != null)
@@ -91,5 +93,10 @@ public class ApplicationInsightsSession {
 
     public List<Telemetry> getFilteredTelemetries() {
         return Collections.unmodifiableList(this.filteredTelemetries);
+    }
+
+    public void updateFilter(String filter) {
+        this.filter = filter;
+        updateFilteredTelemetries();
     }
 }
