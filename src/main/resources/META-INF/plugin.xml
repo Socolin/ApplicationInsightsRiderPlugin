@@ -21,6 +21,8 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.xdebugger</depends>
 
+    <resource-bundle>messages.ApplicationInsightsBundle</resource-bundle>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
     </extensions>
