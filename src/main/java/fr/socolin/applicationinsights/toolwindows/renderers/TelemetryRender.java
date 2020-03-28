@@ -16,6 +16,7 @@ public class TelemetryRender extends TelemetryRenderBase {
         super.setForeground(JBColor.foreground());
 
         Telemetry telemetry = (Telemetry) value;
+        String text;
         switch (telemetry.getType()) {
             case Exception: {
                 ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
@@ -24,9 +25,9 @@ public class TelemetryRender extends TelemetryRenderBase {
 
                 String message = exceptionData.exceptions.get(0).message;
                 if (exceptionData.severityLevel != null) {
-                    super.setText("[" + exceptionData.severityLevel + "] " + message);
+                    text = "[" + exceptionData.severityLevel + "] " + message;
                 } else {
-                    super.setText(message);
+                    text = message;
                 }
                 break;
             }
@@ -40,7 +41,7 @@ public class TelemetryRender extends TelemetryRenderBase {
                 } else {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
                 }
-                super.setText(requestData.responseCode + " - " + requestData.name);
+                text = requestData.responseCode + " - " + requestData.name;
                 break;
             }
             case Metric: {
@@ -52,7 +53,7 @@ public class TelemetryRender extends TelemetryRenderBase {
                         sb.append(" - ");
                     sb.append(metric.name).append(':').append(metric.value);
                 }
-                super.setText(sb.toString());
+                text = sb.toString();
                 break;
             }
             case RemoteDependency: {
@@ -65,11 +66,11 @@ public class TelemetryRender extends TelemetryRenderBase {
                 }
 
                 if (remoteDependencyData.type != null && remoteDependencyData.type.equals("SQL")) {
-                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data);
+                    text = remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data;
                 } else if (remoteDependencyData.type != null && remoteDependencyData.type.equals("Http")) {
-                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.resultCode + " - " + remoteDependencyData.name);
+                    text = remoteDependencyData.type + " - " + remoteDependencyData.resultCode + " - " + remoteDependencyData.name;
                 } else {
-                    super.setText(remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data + " - " + remoteDependencyData.name);
+                    text = remoteDependencyData.type + " - " + remoteDependencyData.target + " - " + remoteDependencyData.data + " - " + remoteDependencyData.name;
                 }
                 break;
             }
@@ -78,22 +79,23 @@ public class TelemetryRender extends TelemetryRenderBase {
 
                 colorComponentDependingOnSeverityLevel(messageData.severityLevel, isSelected);
                 if (messageData.severityLevel != null) {
-                    super.setText("[" + messageData.severityLevel + "] " + messageData.message);
+                    text = "[" + messageData.severityLevel + "] " + messageData.message;
                 } else {
-                    super.setText(messageData.message);
+                    text = messageData.message;
                 }
                 break;
             }
             case Event: {
                 EventData eventData = telemetry.getData(EventData.class);
-                super.setText(eventData.name);
+                text = eventData.name;
                 break;
             }
             default:
-                super.setText(telemetry.toString());
+                text = telemetry.toString();
                 break;
         }
 
+        super.setText(text);
         return this;
     }
 
