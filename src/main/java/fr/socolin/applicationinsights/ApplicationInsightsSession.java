@@ -61,7 +61,7 @@ public class ApplicationInsightsSession {
         boolean visible = false;
         synchronized (telemetries) {
             telemetries.add(telemetry);
-            if (enabledTelemetryTypes.contains(telemetry.getType())) {
+            if (isVisible(telemetry)) {
                 filteredTelemetries.add(telemetry);
                 visible = true;
             }
@@ -73,12 +73,15 @@ public class ApplicationInsightsSession {
     private void updateFilteredTelemetries() {
         synchronized (telemetries) {
             filteredTelemetries = telemetries.stream()
-                    .filter(e -> enabledTelemetryTypes.contains(e.getType()))
-                    .filter(e -> filter.equals("") || e.getJson().contains(filter))
+                    .filter(this::isVisible)
                     .collect(Collectors.toList());
         }
         if (updateAllTelemetries != null)
             updateAllTelemetries.accept(filteredTelemetries);
+    }
+
+    private boolean isVisible(Telemetry telemetry) {
+        return enabledTelemetryTypes.contains(telemetry.getType()) && (filter.equals("") || telemetry.getJson().contains(filter));
     }
 
     public boolean isEnabled(TelemetryType telemetryType) {
