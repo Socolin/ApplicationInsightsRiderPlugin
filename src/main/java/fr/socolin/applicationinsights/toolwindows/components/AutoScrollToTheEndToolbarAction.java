@@ -16,7 +16,7 @@ public class AutoScrollToTheEndToolbarAction extends ToggleAction {
         super();
         this.onSelect = onSelect;
 
-        String message = ActionsBundle.message("action.EditorConsoleScrollToTheEnd.text", new Object[0]);
+        String message = ActionsBundle.message("action.EditorConsoleScrollToTheEnd.text");
         this.getTemplatePresentation().setDescription(message);
         this.getTemplatePresentation().setText(message);
         this.getTemplatePresentation().setIcon(AllIcons.RunConfigurations.Scroll_down);
