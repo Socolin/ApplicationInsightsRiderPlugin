@@ -36,6 +36,7 @@ publishPlugin {
     token intellijPublishToken
 }
 
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
@@ -52,6 +53,11 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
+    <li>1.0.6</li>
+    <ul>
+        <li>Add button to toggle auto-scroll when new log are added</li>
+        <li>General UI improvements</li>
+    </ul>
     <li>1.0.5</li>
     <ul>
         <li>Add filter fields. That allow to filtering logs matching the text</li>

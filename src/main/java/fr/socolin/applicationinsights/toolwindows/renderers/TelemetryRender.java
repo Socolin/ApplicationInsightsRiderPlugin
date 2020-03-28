@@ -1,13 +1,11 @@
 package fr.socolin.applicationinsights.toolwindows.renderers;
 
-import com.google.gson.JsonObject;
 import com.intellij.ui.JBColor;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.metricdata.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class TelemetryRender extends TelemetryRenderBase {
 
@@ -22,16 +20,14 @@ public class TelemetryRender extends TelemetryRenderBase {
             case Exception: {
                 ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
 
-                if ("Error".equals(exceptionData.severityLevel)) {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
-                } else if ("Warning".equals(exceptionData.severityLevel)) {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
-                } else {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
-                }
+                colorComponentDependingOnSeverityLevel(exceptionData.severityLevel, isSelected);
 
                 String message = exceptionData.exceptions.get(0).message;
-                super.setText(exceptionData.severityLevel + " - " + message);
+                if (exceptionData.severityLevel != null) {
+                    super.setText("[" + exceptionData.severityLevel + "] " + message);
+                } else {
+                    super.setText(message);
+                }
                 break;
             }
             case Request: {
@@ -80,15 +76,12 @@ public class TelemetryRender extends TelemetryRenderBase {
             case Message: {
                 MessageData messageData = telemetry.getData(MessageData.class);
 
-                if ("Error".equals(messageData.severityLevel)) {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
-                } else if ("Warning".equals(messageData.severityLevel)) {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
+                colorComponentDependingOnSeverityLevel(messageData.severityLevel, isSelected);
+                if (messageData.severityLevel != null) {
+                    super.setText("[" + messageData.severityLevel + "] " + messageData.message);
                 } else {
-                    super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
+                    super.setText(messageData.message);
                 }
-
-                super.setText(messageData.severityLevel + " - " + messageData.message);
                 break;
             }
             case Event: {
@@ -102,5 +95,20 @@ public class TelemetryRender extends TelemetryRenderBase {
         }
 
         return this;
+    }
+
+    private void colorComponentDependingOnSeverityLevel(String severityLevel, boolean isSelected) {
+        if ("Error".equals(severityLevel)) {
+            super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
+        } else if ("Warning".equals(severityLevel)) {
+            super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Warning", JBColor.orange));
+        } else if ("Critical".equals(severityLevel)) {
+            super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
+            if (!isSelected) {
+                super.setBackground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Critical", new JBColor(0xA21319, 0x5B0006)));
+            }
+        } else {
+            super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
+        }
     }
 }
