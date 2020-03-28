@@ -2,8 +2,12 @@ package fr.socolin.applicationinsights.toolwindows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.ide.CommonActionsManager;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -23,6 +27,7 @@ import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.ExceptionData;
+import fr.socolin.applicationinsights.toolwindows.components.AutoScrollToTheEndToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.components.ColorBox;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
@@ -69,13 +74,15 @@ public class AppInsightsToolWindow {
     private ColorBox requestColorBox;
     private ColorBox eventColorBox;
     private JBTextField filter;
-    private JCheckBox filterMode;
+    private JScrollPane logsScrollPane;
+    private ActionToolbarImpl toolbar;
 
     private JCheckBox[] telemetryTypesCheckBoxes;
     private JLabel[] telemetryTypesCounter;
     @Nullable
     private ApplicationInsightsSession activeApplicationInsightsSession;
     private TelemetryTableModel telemetryTableModel;
+    private boolean autoScrollToTheEnd;
 
 
     public AppInsightsToolWindow(Project project) {
@@ -130,7 +137,7 @@ public class AppInsightsToolWindow {
                         if (stack.fileName != null) {
                             VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + stack.fileName);
                             if (file != null) {
-                                OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line),0));
+                                OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0));
                                 found = true;
                                 break;
                             }
@@ -208,31 +215,42 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(130);
         appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
         appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(100);
+        appInsightsLogsTable.getTableHeader().setUI(null);
 
         this.updateEnabledTelemetryTypeCheckBoxes(applicationInsightsSession);
     }
 
     private void setTelemetries(List<Telemetry> telemetries) {
         telemetryCountPerType.clear();
-         for (Telemetry telemetry : telemetries) {
-             telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
-         }
+        for (Telemetry telemetry : telemetries) {
+            telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
+        }
         updateTelemetryTypeCounter(null);
     }
 
     private void addTelemetry(Telemetry telemetry, Boolean visible) {
         if (visible) {
             telemetryTableModel.addRow(telemetry);
+            SwingUtilities.invokeLater(() -> {
+                if (autoScrollToTheEnd) {
+                    performAutoScrollToTheEnd();
+                }
+            });
         }
         telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
         updateTelemetryTypeCounter(telemetry.getType());
+    }
+
+    private void performAutoScrollToTheEnd() {
+        appInsightsLogsTable.scrollRectToVisible(appInsightsLogsTable.getCellRect(telemetryTableModel.getRowCount() - 1, 0, true));
     }
 
     private void updateTelemetryTypeCounter(@Nullable TelemetryType type) {
         for (JLabel counter : telemetryTypesCounter) {
             TelemetryType telemetryType = (TelemetryType) counter.getClientProperty("TelemetryType");
             if (type != null && telemetryType != type)
-                continue;;
+                continue;
+            ;
 
             int count = telemetryCountPerType.get(telemetryType);
             if (count < 1000) {
@@ -257,11 +275,27 @@ public class AppInsightsToolWindow {
     private void createUIComponents() {
         editor = new LanguageTextField(JsonLanguage.INSTANCE, project, "");
 
-        metricColorBox= new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Metric", JBColor.gray) );
+        metricColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Metric", JBColor.gray));
         exceptionColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Exception", JBColor.red));
         messageColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Message", JBColor.orange));
-        dependencyColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.RemoteDependency", JBColor.blue) );
+        dependencyColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.RemoteDependency", JBColor.blue));
         requestColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Request", JBColor.green));
-        eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan) );
+        eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
+
+        toolbar = createToolbar();
+    }
+
+    private ActionToolbarImpl createToolbar() {
+        final DefaultActionGroup actionGroup = new DefaultActionGroup();
+
+        actionGroup.add(new AutoScrollToTheEndToolbarAction((selected) -> {
+            autoScrollToTheEnd = selected;
+            if (autoScrollToTheEnd) {
+                performAutoScrollToTheEnd();
+            }
+        }));
+
+
+        return new ActionToolbarImpl("ApplicationInsights", actionGroup , true);
     }
 }
