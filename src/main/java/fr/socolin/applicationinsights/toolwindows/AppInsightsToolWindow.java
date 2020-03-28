@@ -23,12 +23,14 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
+import fr.socolin.applicationinsights.ApplicationInsightsBundle;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.ExceptionData;
 import fr.socolin.applicationinsights.toolwindows.components.AutoScrollToTheEndToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.components.ColorBox;
+import fr.socolin.applicationinsights.toolwindows.components.FilterIndicatorToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
@@ -49,6 +51,7 @@ import java.util.Map;
 public class AppInsightsToolWindow {
     private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
     private final Project project;
+    private final TelemetryRender telemetryRender = new TelemetryRender();
     private Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
 
     private JPanel mainPanel;
@@ -96,9 +99,9 @@ public class AppInsightsToolWindow {
         splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
 
+        appInsightsLogsTable.setDefaultRenderer(Telemetry.class, telemetryRender);
         appInsightsLogsTable.setDefaultRenderer(TelemetryType.class, new TelemetryTypeRender());
         appInsightsLogsTable.setDefaultRenderer(Date.class, new TelemetryDateRender());
-        appInsightsLogsTable.setDefaultRenderer(Telemetry.class, new TelemetryRender());
         appInsightsLogsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 
@@ -295,7 +298,12 @@ public class AppInsightsToolWindow {
             }
         }));
 
+        actionGroup.add(new FilterIndicatorToolbarAction((selected) -> {
+            this.telemetryRender.setShowFilteredIndicator(selected);
+            this.appInsightsLogsTable.invalidate();
+            this.appInsightsLogsTable.repaint();
+        }));
 
-        return new ActionToolbarImpl("ApplicationInsights", actionGroup , true);
+        return new ActionToolbarImpl("ApplicationInsights", actionGroup , false);
     }
 }

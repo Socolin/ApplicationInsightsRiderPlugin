@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class TelemetryRender extends TelemetryRenderBase {
+    private boolean showFilteredIndicator;
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -95,7 +96,12 @@ public class TelemetryRender extends TelemetryRenderBase {
                 break;
         }
 
-        super.setText(text);
+        if (showFilteredIndicator && telemetry.getFilteredBy() != null) {
+            super.setText("(Filtered) " + text);
+        } else {
+            super.setText(text);
+        }
+
         return this;
     }
 
@@ -112,5 +118,9 @@ public class TelemetryRender extends TelemetryRenderBase {
         } else {
             super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
         }
+    }
+
+    public void setShowFilteredIndicator(boolean showFilteredIndicator) {
+        this.showFilteredIndicator = showFilteredIndicator;
     }
 }
