@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 public class TelemetryFactory {
     private final JsonParser jsonParser;
     private final Gson gson;
+    private final String appInsightsLogPrefix = "category: Application Insights Telemetry";
+    private final String filteredByPrefix = " (filtered by ";
+    private final String unconfiguredPrefix = " (unconfigured) ";
 
     public TelemetryFactory() {
         jsonParser = new JsonParser();
@@ -51,13 +54,22 @@ public class TelemetryFactory {
 
     @Nullable
     public Telemetry tryCreateFromDebugOutputLog(@NotNull String output) {
-        if (!output.startsWith("category: Application Insights Telemetry")) {
+        if (!output.startsWith(appInsightsLogPrefix)) {
             return null;
         }
 
         // FIXME: We should also parse what is in parenthesis (Filtered log, unconfigured)
         String json = output.substring(output.indexOf('{'), output.lastIndexOf('}') + 1);
 
-        return fromJson(json);
+        Telemetry telemetry = fromJson(json);
+
+        String telemetryState = output.substring(appInsightsLogPrefix.length());
+        if (telemetryState.startsWith(filteredByPrefix)) {
+            telemetry.setFilteredBy(telemetryState.substring(filteredByPrefix.length(), telemetryState.indexOf(')')));
+        } else if (telemetryState.startsWith(unconfiguredPrefix)) {
+            telemetry.setUnConfigured();
+        }
+
+        return telemetry;
     }
 }

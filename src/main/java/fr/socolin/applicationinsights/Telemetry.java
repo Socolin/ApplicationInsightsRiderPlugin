@@ -14,6 +14,8 @@ public class Telemetry {
     private final JsonObject jsonObject;
     private final Date timestamp;
     private final ITelemetryData data;
+    private String filteredBy;
+    private boolean unconfigured;
 
     public Telemetry(TelemetryType type, String json, JsonObject jsonObject, ITelemetryData data) {
         this.type = type;
@@ -43,5 +45,21 @@ public class Telemetry {
 
     public <T extends ITelemetryData> T getData(Class<T> clazz) {
         return (T)data;
+    }
+
+    public void setFilteredBy(String filteredBy) {
+        this.filteredBy = filteredBy;
+    }
+
+    public String getFilteredBy() {
+        return filteredBy;
+    }
+
+    public void setUnConfigured() {
+        unconfigured = true;
+    }
+
+    public boolean isUnconfigured() {
+        return unconfigured;
     }
 }
