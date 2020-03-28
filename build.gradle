@@ -41,7 +41,6 @@ publishPlugin {
     token intellijPublishToken
 }
 
-
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
@@ -49,7 +48,7 @@ intellij {
     if (intelijiBranch == 'stable') {
         version '2019.3.4'
     } else if (intelijiBranch == 'eap') {
-        version '2020.1-EAP4-SNAPSHOT'
+        version '2020.1-EAP6-SNAPSHOT'
     }
 
     downloadSources = false
