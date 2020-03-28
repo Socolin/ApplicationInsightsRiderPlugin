@@ -61,6 +61,7 @@ patchPluginXml {
     <ul>
         <li>Add button to toggle auto-scroll when new log are added</li>
         <li>General UI improvements</li>
+        <li>Add indicator on logs filtered by a TelemetryProcessor (like the AdaptiveSampling or SamplingTelemetryProcessor.</li>
     </ul>
     <li>1.0.5</li>
     <ul>
