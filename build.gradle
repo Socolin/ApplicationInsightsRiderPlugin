@@ -6,7 +6,12 @@ plugins {
 group 'fr.socolin'
 version '1.0.5'
 
-if (buildType == 'eap') {
+def intelijiBranch= 'eap'
+if (project.hasProperty('buildType')) {
+    intelijiBranch = project.property('buildType');
+}
+
+if (intelijiBranch == 'eap') {
     version = "$version-EAP"
 }
 
@@ -14,10 +19,10 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    if (project.ext.buildType == 'stable') {
+    if (intelijiBranch == 'stable') {
         maven { url "https://www.jetbrains.com/intellij-repository/releases" }
     }
-    if (project.ext.buildType == 'eap') {
+    if (intelijiBranch == 'eap') {
         maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
     }
 }
@@ -28,7 +33,7 @@ dependencies {
 }
 
 publishPlugin {
-    if (buildType == 'eap') {
+    if (intelijiBranch == 'eap') {
         channels 'eap'
     } else {
         channels 'alpha'
@@ -41,9 +46,9 @@ publishPlugin {
 intellij {
     type = 'RD'
 
-    if (buildType == 'stable') {
+    if (intelijiBranch == 'stable') {
         version '2019.3.4'
-    } else if (buildType == 'eap') {
+    } else if (intelijiBranch == 'eap') {
         version '2020.1-EAP4-SNAPSHOT'
     }
 
