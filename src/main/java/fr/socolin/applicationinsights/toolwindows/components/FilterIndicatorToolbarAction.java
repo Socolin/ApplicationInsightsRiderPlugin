@@ -12,9 +12,10 @@ public class FilterIndicatorToolbarAction extends ToggleAction {
     private boolean state;
     private Consumer<Boolean> onSelect;
 
-    public FilterIndicatorToolbarAction(Consumer<Boolean> onSelect) {
+    public FilterIndicatorToolbarAction(Consumer<Boolean> onSelect, boolean selected) {
         super();
         this.onSelect = onSelect;
+        state = selected;
 
         String message = ApplicationInsightsBundle.message("action.ApplicationInsights.ToggleFilteredIndicator.text");
         this.getTemplatePresentation().setDescription(message);

@@ -3,6 +3,7 @@ package fr.socolin.applicationinsights.toolwindows;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -289,6 +290,7 @@ public class AppInsightsToolWindow {
         editor.getSettings().setIndentGuidesShown(true);
         editor.getSettings().setAdditionalLinesCount(3);
         editor.getSettings().setFoldingOutlineShown(true);
+        editor.getSettings().setUseSoftWraps(PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.useSoftWrap"));
 
         editorPanel = editor.getComponent();
     }
@@ -296,22 +298,31 @@ public class AppInsightsToolWindow {
     private ActionToolbarImpl createToolbar() {
         final DefaultActionGroup actionGroup = new DefaultActionGroup();
 
+        autoScrollToTheEnd = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.autoScrollToTheEnd");
+
         actionGroup.add(new AutoScrollToTheEndToolbarAction((selected) -> {
             autoScrollToTheEnd = selected;
+            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.autoScrollToTheEnd", selected);
             if (autoScrollToTheEnd) {
                 performAutoScrollToTheEnd();
             }
-        }));
+        }, autoScrollToTheEnd));
 
         actionGroup.add(new FilterIndicatorToolbarAction((selected) -> {
             this.telemetryRender.setShowFilteredIndicator(selected);
             this.appInsightsLogsTable.invalidate();
             this.appInsightsLogsTable.repaint();
-        }));
+        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator")));
 
         actionGroup.add(new AbstractToggleUseSoftWrapsAction(SoftWrapAppliancePlaces.PREVIEW, false) {
             {
                 ActionUtil.copyFrom(this, "EditorToggleUseSoftWraps");
+            }
+
+            @Override
+            public void setSelected(@NotNull AnActionEvent e, boolean state) {
+                super.setSelected(e, state);
+                PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.useSoftWrap", state);
             }
 
             @Nullable

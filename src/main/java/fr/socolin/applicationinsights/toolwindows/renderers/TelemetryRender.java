@@ -1,5 +1,6 @@
 package fr.socolin.applicationinsights.toolwindows.renderers;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ui.JBColor;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.metricdata.*;
@@ -9,6 +10,10 @@ import java.awt.*;
 
 public class TelemetryRender extends TelemetryRenderBase {
     private boolean showFilteredIndicator;
+
+    public TelemetryRender() {
+        showFilteredIndicator = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator");
+    }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -122,5 +127,10 @@ public class TelemetryRender extends TelemetryRenderBase {
 
     public void setShowFilteredIndicator(boolean showFilteredIndicator) {
         this.showFilteredIndicator = showFilteredIndicator;
+        PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.showFilteredIndicator", showFilteredIndicator);
+    }
+
+    public boolean isShowFilteredIndicator() {
+        return showFilteredIndicator;
     }
 }

@@ -12,9 +12,10 @@ public class AutoScrollToTheEndToolbarAction extends ToggleAction {
     private boolean state;
     private Consumer<Boolean> onSelect;
 
-    public AutoScrollToTheEndToolbarAction(Consumer<Boolean> onSelect) {
+    public AutoScrollToTheEndToolbarAction(Consumer<Boolean> onSelect, boolean selected) {
         super();
         this.onSelect = onSelect;
+        this.state = selected;
 
         String message = ActionsBundle.message("action.EditorConsoleScrollToTheEnd.text");
         this.getTemplatePresentation().setDescription(message);
