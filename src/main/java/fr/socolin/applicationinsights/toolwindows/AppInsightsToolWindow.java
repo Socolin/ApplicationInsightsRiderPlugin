@@ -9,24 +9,21 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.actions.AbstractToggleUseSoftWrapsAction;
 import com.intellij.openapi.editor.ex.EditorEx;
-import com.intellij.openapi.editor.highlighter.EditorHighlighter;
-import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.ui.EditorTextField;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBUI;
@@ -57,7 +54,7 @@ public class AppInsightsToolWindow {
     private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
     private final Project project;
     private final TelemetryRender telemetryRender = new TelemetryRender();
-    private Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
+    private final Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
 
     private JPanel mainPanel;
     private JTable appInsightsLogsTable;
@@ -85,10 +82,11 @@ public class AppInsightsToolWindow {
     private ActionToolbarImpl toolbar;
     private JComponent editorPanel;
 
-    private JCheckBox[] telemetryTypesCheckBoxes;
+    @NotNull
     private JLabel[] telemetryTypesCounter;
-    @Nullable
-    private ApplicationInsightsSession activeApplicationInsightsSession;
+    @NotNull
+    private final ApplicationInsightsSession applicationInsightsSession;
+    @NotNull
     private TelemetryTableModel telemetryTableModel;
     private boolean autoScrollToTheEnd;
     @NonNull
@@ -97,8 +95,9 @@ public class AppInsightsToolWindow {
     private Document jsonPreviewDocument;
 
 
-    public AppInsightsToolWindow(Project project) {
+    public AppInsightsToolWindow(@NonNull ApplicationInsightsSession applicationInsightsSession, @NotNull Project project) {
         this.project = project;
+        this.applicationInsightsSession = applicationInsightsSession;
 
         initTelemetryTypeFilters();
 
@@ -112,6 +111,15 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.setDefaultRenderer(Date.class, new TelemetryDateRender());
         appInsightsLogsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        telemetryTableModel = new TelemetryTableModel();
+        appInsightsLogsTable.setModel(telemetryTableModel);
+        appInsightsLogsTable.getColumnModel().getColumn(0).setPreferredWidth(90);
+        appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(130);
+        appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(100);
+        appInsightsLogsTable.getTableHeader().setUI(null);
+
+
         filter.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -119,13 +127,13 @@ public class AppInsightsToolWindow {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (activeApplicationInsightsSession != null)
-                    activeApplicationInsightsSession.updateFilter(filter.getText());
+                if (AppInsightsToolWindow.this.applicationInsightsSession != null)
+                    AppInsightsToolWindow.this.applicationInsightsSession.updateFilter(filter.getText());
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                activeApplicationInsightsSession.updateFilter(filter.getText());
+                AppInsightsToolWindow.this.applicationInsightsSession.updateFilter(filter.getText());
             }
         });
         appInsightsLogsTable.getSelectionModel().addListSelectionListener(e -> {
@@ -163,17 +171,19 @@ public class AppInsightsToolWindow {
         // A bit hackish, replace leading space with tabs for better formatting. `gson` is not giving any option on pretty print (maybe need to try another one ?)
         for (String line : text.split("\n")) {
             int i;
-            for (i = 0; i < line.length() && line.charAt(i) == ' ' ; i++);
+            for (i = 0; i < line.length() && line.charAt(i) == ' '; i++) ;
             if (i > 0) {
                 for (int j = 0; j < i / 2; j++)
-                   sb.append('\t');
+                    sb.append('\t');
                 sb.append(line.substring(i));
             } else {
                 sb.append(line);
             }
             sb.append('\n');
         }
-        jsonPreviewDocument.setText(sb.toString());
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            jsonPreviewDocument.setText(sb.toString());
+        });
         CodeFoldingManager.getInstance(project).updateFoldRegions(editor);
     }
 
@@ -185,13 +195,6 @@ public class AppInsightsToolWindow {
         requestCheckBox.putClientProperty("TelemetryType", TelemetryType.Request);
         eventCheckBox.putClientProperty("TelemetryType", TelemetryType.Event);
 
-        metricCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-        exceptionCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-        messageCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-        dependencyCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-        requestCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-        eventCheckBox.setBorder(JBUI.Borders.emptyRight(8));
-
         metricCounter.putClientProperty("TelemetryType", TelemetryType.Metric);
         exceptionCounter.putClientProperty("TelemetryType", TelemetryType.Exception);
         messageCounter.putClientProperty("TelemetryType", TelemetryType.Message);
@@ -199,25 +202,17 @@ public class AppInsightsToolWindow {
         requestCounter.putClientProperty("TelemetryType", TelemetryType.Request);
         eventCounter.putClientProperty("TelemetryType", TelemetryType.Event);
 
-        metricCounter.setBorder(JBUI.Borders.emptyRight(8));
-        exceptionCounter.setBorder(JBUI.Borders.emptyRight(8));
-        messageCounter.setBorder(JBUI.Borders.emptyRight(8));
-        dependencyCounter.setBorder(JBUI.Borders.emptyRight(8));
-        requestCounter.setBorder(JBUI.Borders.emptyRight(8));
-        eventCounter.setBorder(JBUI.Borders.emptyRight(8));
-
-        telemetryTypesCheckBoxes = new JCheckBox[]{metricCheckBox, exceptionCheckBox, messageCheckBox, dependencyCheckBox, requestCheckBox, eventCheckBox};
+        JCheckBox[] telemetryTypesCheckBoxes = new JCheckBox[]{metricCheckBox, exceptionCheckBox, messageCheckBox, dependencyCheckBox, requestCheckBox, eventCheckBox};
         telemetryTypesCounter = new JLabel[]{metricCounter, exceptionCounter, messageCounter, dependencyCounter, requestCounter, eventCounter};
 
         for (JCheckBox checkBox : telemetryTypesCheckBoxes) {
             TelemetryType telemetryType = (TelemetryType) checkBox.getClientProperty("TelemetryType");
+            checkBox.setSelected(applicationInsightsSession.isEnabled(telemetryType));
             checkBox.addItemListener(e -> {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    if (activeApplicationInsightsSession != null)
-                        activeApplicationInsightsSession.setTelemetryFiltered(telemetryType, false);
+                    applicationInsightsSession.setTelemetryFiltered(telemetryType, false);
                 } else {
-                    if (activeApplicationInsightsSession != null)
-                        activeApplicationInsightsSession.setTelemetryFiltered(telemetryType, true);
+                    applicationInsightsSession.setTelemetryFiltered(telemetryType, true);
                 }
             });
         }
@@ -227,35 +222,22 @@ public class AppInsightsToolWindow {
         return mainPanel;
     }
 
-    public void selectSession(@Nullable ApplicationInsightsSession applicationInsightsSession) {
-        this.activeApplicationInsightsSession = applicationInsightsSession;
-        if (applicationInsightsSession == null) {
-            return;
-        }
-
-        telemetryTableModel = new TelemetryTableModel();
-        telemetryTableModel.setRows(applicationInsightsSession.getFilteredTelemetries());
-        applicationInsightsSession.registerChanges(this::addTelemetry, telemetryTableModel::setRows, this::setTelemetries);
-        appInsightsLogsTable.setModel(telemetryTableModel);
-
-        appInsightsLogsTable.getColumnModel().getColumn(0).setPreferredWidth(90);
-        appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(130);
-        appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-        appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(100);
-        appInsightsLogsTable.getTableHeader().setUI(null);
-
-        this.updateEnabledTelemetryTypeCheckBoxes(applicationInsightsSession);
-    }
-
-    private void setTelemetries(List<Telemetry> telemetries) {
+    public void setTelemetries(
+            @NotNull List<Telemetry> telemetries,
+            @NotNull List<Telemetry> visibleTelemetries
+    ) {
         telemetryCountPerType.clear();
         for (Telemetry telemetry : telemetries) {
             telemetryCountPerType.compute(telemetry.getType(), (telemetryType, count) -> count == null ? 1 : count + 1);
         }
         updateTelemetryTypeCounter(null);
+        telemetryTableModel.setRows(visibleTelemetries);
     }
 
-    private void addTelemetry(Telemetry telemetry, Boolean visible) {
+    public void addTelemetry(
+            @NotNull Telemetry telemetry,
+            boolean visible
+    ) {
         if (visible) {
             telemetryTableModel.addRow(telemetry);
             SwingUtilities.invokeLater(() -> {
@@ -277,9 +259,8 @@ public class AppInsightsToolWindow {
             TelemetryType telemetryType = (TelemetryType) counter.getClientProperty("TelemetryType");
             if (type != null && telemetryType != type)
                 continue;
-            ;
 
-            int count = telemetryCountPerType.get(telemetryType);
+            int count = telemetryCountPerType.computeIfAbsent(telemetryType, (e) -> 0);
             if (count < 1000) {
                 counter.setText(String.valueOf(count));
             } else if (count < 1000000) {
@@ -289,15 +270,6 @@ public class AppInsightsToolWindow {
             }
         }
     }
-
-    private void updateEnabledTelemetryTypeCheckBoxes(@NotNull ApplicationInsightsSession applicationInsightsSession) {
-        for (JCheckBox checkBox : telemetryTypesCheckBoxes) {
-            TelemetryType telemetryType = (TelemetryType) checkBox.getClientProperty("TelemetryType");
-            log.trace(telemetryType + " - " + applicationInsightsSession.isEnabled(telemetryType));
-            checkBox.setSelected(applicationInsightsSession.isEnabled(telemetryType));
-        }
-    }
-    // "ColorPalette.$textInputBackground": "#282828"
 
     private void createUIComponents() {
         metricColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Metric", JBColor.gray));

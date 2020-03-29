@@ -1,7 +1,10 @@
 package fr.socolin.applicationinsights;
 
+import com.intellij.ui.content.Content;
+import com.intellij.util.IconUtil;
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
+import fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindow;
 import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,13 +19,10 @@ public class ApplicationInsightsSession {
     private TelemetryFactory telemetryFactory;
     private DotNetDebugProcess dotNetDebugProcess;
     private Set<TelemetryType> enabledTelemetryTypes = new HashSet<>();
-    @Nullable
-    private BiConsumer<Telemetry, Boolean> addedTelemetry;
-    @Nullable
-    private Consumer<List<Telemetry>> updateAllTelemetries;
-    @Nullable
-    private Consumer<List<Telemetry>> updateVisibleTelemetries;
     private String filter = "";
+    private boolean firstMessage = true;
+    @Nullable
+    private AppInsightsToolWindow appInsightsToolWindow;
 
     public ApplicationInsightsSession(
             TelemetryFactory telemetryFactory,
@@ -58,6 +58,21 @@ public class ApplicationInsightsSession {
     }
 
     private void addTelemetry(Telemetry telemetry) {
+        if (firstMessage) {
+            firstMessage = false;
+
+            appInsightsToolWindow = new AppInsightsToolWindow(this, dotNetDebugProcess.getProject());
+
+            Content content = dotNetDebugProcess.getSession().getUI().createContent(
+                    "appinsights",
+                    appInsightsToolWindow.getContent(),
+                    "Application Insights",
+                    IconUtil.getAddIcon(), // FIXME replace with icon
+                    null
+            );
+            dotNetDebugProcess.getSession().getUI().addContent(content);
+        }
+
         boolean visible = false;
         synchronized (telemetries) {
             telemetries.add(telemetry);
@@ -66,8 +81,8 @@ public class ApplicationInsightsSession {
                 visible = true;
             }
         }
-        if (addedTelemetry != null)
-            addedTelemetry.accept(telemetry, visible);
+        if (appInsightsToolWindow != null)
+            appInsightsToolWindow.addTelemetry(telemetry, visible);
     }
 
     private void updateFilteredTelemetries() {
@@ -76,8 +91,8 @@ public class ApplicationInsightsSession {
                     .filter(this::isVisible)
                     .collect(Collectors.toList());
         }
-        if (updateAllTelemetries != null)
-            updateAllTelemetries.accept(filteredTelemetries);
+        if (appInsightsToolWindow != null)
+            appInsightsToolWindow.setTelemetries(telemetries, filteredTelemetries);
     }
 
     private boolean isVisible(Telemetry telemetry) {
@@ -86,16 +101,6 @@ public class ApplicationInsightsSession {
 
     public boolean isEnabled(TelemetryType telemetryType) {
         return this.enabledTelemetryTypes.contains(telemetryType);
-    }
-
-    public void registerChanges(BiConsumer<Telemetry, Boolean> addedTelemetry, Consumer<List<Telemetry>> updateAllTelemetries, Consumer<List<Telemetry>> updateVisibleTelemetries) {
-        this.addedTelemetry = addedTelemetry;
-        this.updateAllTelemetries = updateAllTelemetries;
-        this.updateVisibleTelemetries = updateVisibleTelemetries;
-    }
-
-    public List<Telemetry> getFilteredTelemetries() {
-        return Collections.unmodifiableList(this.filteredTelemetries);
     }
 
     public void updateFilter(String filter) {

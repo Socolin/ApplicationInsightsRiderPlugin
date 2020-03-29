@@ -1,10 +1,16 @@
 package fr.socolin.applicationinsights.toolwindows.components;
 
+import com.intellij.ui.JBColor;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class ColorBox extends JPanel {
     private Color color;
+
+    public ColorBox() {
+        this(JBColor.blue);
+    }
 
     public ColorBox(Color color) {
         this.color = color;

@@ -50,18 +50,5 @@ public class ApplicationInsightsSessionManager {
         if (debugSession == null)
             return;
 
-        AppInsightsToolWindow appInsightsToolWindow = new AppInsightsToolWindow(debugSession.getProject());
-
-        Content content = debugSession.getUI().createContent(
-                "appinsights",
-                appInsightsToolWindow.getContent(),
-                "Application Insights",
-                IconUtil.getAddIcon(), // FIXME replace with icon
-                null
-        );
-        debugSession.getUI().addContent(content);
-
-        ApplicationInsightsSession applicationInsightsSession = sessions.get(debugSession.getDebugProcess());
-        appInsightsToolWindow.selectSession(applicationInsightsSession);
     }
 }

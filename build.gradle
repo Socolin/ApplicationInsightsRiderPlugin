@@ -62,6 +62,7 @@ patchPluginXml {
         <li>Add button to toggle auto-scroll when new log are added</li>
         <li>General UI improvements</li>
         <li>Add indicator on logs filtered by a TelemetryProcessor (like the AdaptiveSampling or SamplingTelemetryProcessor.</li>
+        <li>The ApplicationInsights tab will only appear on first application insights log. It will not appear on project that does not use AI</li>
     </ul>
     <li>1.0.5</li>
     <ul>
