@@ -25,6 +25,7 @@ Then the plugins will be in `build/distributions`
 
 - Group by operationId
 - Alternative display of json section with clickable things like excetpions, or button to filter similar log (operationId, or other properties)
+- Revert ApplicationInsightsBundle to new version once stable is 2020.1 (commit `f36cc8f87e59227bf13fd24de42696f91c0f7130`)
 
 ### License
 
