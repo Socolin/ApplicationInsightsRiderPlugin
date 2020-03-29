@@ -31,10 +31,6 @@
         <!-- Add your actions here -->
     </actions>
 
-    <applicationListeners>
-        <listener class="fr.socolin.applicationinsights.listeners.ListenerTest"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
     <projectListeners>
         <listener class="fr.socolin.applicationinsights.listeners.DebugMessageListener"
                   topic="com.intellij.xdebugger.XDebuggerManagerListener"/>

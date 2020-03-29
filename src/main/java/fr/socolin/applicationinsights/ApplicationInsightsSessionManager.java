@@ -41,14 +41,4 @@ public class ApplicationInsightsSessionManager {
 
         return applicationInsightsSession;
     }
-
-    public void endSession(XDebugProcess debugProcess) {
-
-    }
-
-    public void selectSession(@Nullable XDebugSession debugSession) {
-        if (debugSession == null)
-            return;
-
-    }
 }
