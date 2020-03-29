@@ -1,5 +1,6 @@
 package fr.socolin.applicationinsights;
 
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.content.Content;
 import com.intellij.util.IconUtil;
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
@@ -8,6 +9,7 @@ import fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindow;
 import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -23,6 +25,7 @@ public class ApplicationInsightsSession {
     private boolean firstMessage = true;
     @Nullable
     private AppInsightsToolWindow appInsightsToolWindow;
+    private static final Icon icon = IconLoader.getIcon("/icons/application-insights.svg");
 
     public ApplicationInsightsSession(
             TelemetryFactory telemetryFactory,
@@ -67,7 +70,7 @@ public class ApplicationInsightsSession {
                     "appinsights",
                     appInsightsToolWindow.getContent(),
                     "Application Insights",
-                    IconUtil.getAddIcon(), // FIXME replace with icon
+                    icon,
                     null
             );
             dotNetDebugProcess.getSession().getUI().addContent(content);
