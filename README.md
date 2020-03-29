@@ -28,6 +28,7 @@ Then the plugins will be in `build/distributions`
 - Alternative display of json section with clickable things like excetpions, or button to filter similar log (operationId, or other properties)
 - Only display on first log
 - Save settings (scroll to end / filter)
+- Change tab icon
 
 ### License
 

@@ -14,26 +14,13 @@
         </constraints>
         <properties>
           <continuousLayout value="false"/>
-          <dividerLocation value="323"/>
+          <dividerLocation value="370"/>
           <oneTouchExpandable value="false"/>
           <orientation value="1"/>
           <resizeWeight value="1.0"/>
         </properties>
         <border type="none"/>
         <children>
-          <scrollpane id="fd45c" class="com.intellij.ui.components.JBScrollPane">
-            <constraints>
-              <splitpane position="right"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="1545f" class="com.intellij.ui.EditorTextField" binding="editor" custom-create="true">
-                <constraints/>
-                <properties/>
-              </component>
-            </children>
-          </scrollpane>
           <grid id="7c8f3" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
@@ -63,6 +50,11 @@
               </component>
             </children>
           </grid>
+          <component id="c0897" class="javax.swing.JComponent" binding="editorPanel" custom-create="true">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+          </component>
         </children>
       </splitpane>
       <grid id="53d4d" layout-manager="GridBagLayout">

@@ -2,28 +2,34 @@ package fr.socolin.applicationinsights.toolwindows;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.intellij.ide.CommonActionsManager;
+import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
-import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.actions.AbstractToggleUseSoftWrapsAction;
+import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighter;
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
+import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
-import com.intellij.ui.components.JBTextArea;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
-import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
-import fr.socolin.applicationinsights.ApplicationInsightsBundle;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
@@ -34,12 +40,11 @@ import fr.socolin.applicationinsights.toolwindows.components.FilterIndicatorTool
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -56,7 +61,6 @@ public class AppInsightsToolWindow {
 
     private JPanel mainPanel;
     private JTable appInsightsLogsTable;
-    private EditorTextField editor;
     private JCheckBox metricCheckBox;
     private JCheckBox exceptionCheckBox;
     private JCheckBox messageCheckBox;
@@ -79,6 +83,7 @@ public class AppInsightsToolWindow {
     private JBTextField filter;
     private JScrollPane logsScrollPane;
     private ActionToolbarImpl toolbar;
+    private JComponent editorPanel;
 
     private JCheckBox[] telemetryTypesCheckBoxes;
     private JLabel[] telemetryTypesCounter;
@@ -86,6 +91,10 @@ public class AppInsightsToolWindow {
     private ApplicationInsightsSession activeApplicationInsightsSession;
     private TelemetryTableModel telemetryTableModel;
     private boolean autoScrollToTheEnd;
+    @NonNull
+    private Editor editor;
+    @NonNull
+    private Document jsonPreviewDocument;
 
 
     public AppInsightsToolWindow(Project project) {
@@ -93,17 +102,15 @@ public class AppInsightsToolWindow {
 
         initTelemetryTypeFilters();
 
-        editor.setOneLineMode(false);
-        editor.setFileType(JsonFileType.INSTANCE);
-
         splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
+
+        CodeFoldingManager.getInstance(project).buildInitialFoldings(jsonPreviewDocument);
 
         appInsightsLogsTable.setDefaultRenderer(Telemetry.class, telemetryRender);
         appInsightsLogsTable.setDefaultRenderer(TelemetryType.class, new TelemetryTypeRender());
         appInsightsLogsTable.setDefaultRenderer(Date.class, new TelemetryDateRender());
         appInsightsLogsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
 
         filter.addKeyListener(new KeyListener() {
             @Override
@@ -124,13 +131,11 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getSelectionModel().addListSelectionListener(e -> {
             Telemetry telemetry = telemetryTableModel.getRow(appInsightsLogsTable.getSelectedRow());
             if (telemetry == null) {
-                Document document = EditorFactory.getInstance().createDocument("");
-                editor.setDocument(document);
+                updateJsonPreview("");
                 return;
             }
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            Document document = EditorFactory.getInstance().createDocument(gson.toJson(telemetry.getJsonObject()));
-            editor.setDocument(document);
+            updateJsonPreview(gson.toJson(telemetry.getJsonObject()));
 
             if (telemetry.getType() == TelemetryType.Exception) {
                 ExceptionData data = telemetry.getData(ExceptionData.class);
@@ -151,6 +156,25 @@ public class AppInsightsToolWindow {
                 }
             }
         });
+    }
+
+    private void updateJsonPreview(String text) {
+        StringBuilder sb = new StringBuilder();
+        // A bit hackish, replace leading space with tabs for better formatting. `gson` is not giving any option on pretty print (maybe need to try another one ?)
+        for (String line : text.split("\n")) {
+            int i;
+            for (i = 0; i < line.length() && line.charAt(i) == ' ' ; i++);
+            if (i > 0) {
+                for (int j = 0; j < i / 2; j++)
+                   sb.append('\t');
+                sb.append(line.substring(i));
+            } else {
+                sb.append(line);
+            }
+            sb.append('\n');
+        }
+        jsonPreviewDocument.setText(sb.toString());
+        CodeFoldingManager.getInstance(project).updateFoldRegions(editor);
     }
 
     private void initTelemetryTypeFilters() {
@@ -276,8 +300,6 @@ public class AppInsightsToolWindow {
     // "ColorPalette.$textInputBackground": "#282828"
 
     private void createUIComponents() {
-        editor = new LanguageTextField(JsonLanguage.INSTANCE, project, "");
-
         metricColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Metric", JBColor.gray));
         exceptionColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Exception", JBColor.red));
         messageColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Message", JBColor.orange));
@@ -286,6 +308,17 @@ public class AppInsightsToolWindow {
         eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
 
         toolbar = createToolbar();
+
+        jsonPreviewDocument = new LanguageTextField.SimpleDocumentCreator().createDocument("", JsonLanguage.INSTANCE, project);
+        editor = EditorFactory.getInstance().createEditor(jsonPreviewDocument, project, JsonFileType.INSTANCE, true);
+        if (editor instanceof EditorEx) {
+            ((EditorEx) editor).getFoldingModel().setFoldingEnabled(true);
+        }
+        editor.getSettings().setIndentGuidesShown(true);
+        editor.getSettings().setAdditionalLinesCount(3);
+        editor.getSettings().setFoldingOutlineShown(true);
+
+        editorPanel = editor.getComponent();
     }
 
     private ActionToolbarImpl createToolbar() {
@@ -304,6 +337,18 @@ public class AppInsightsToolWindow {
             this.appInsightsLogsTable.repaint();
         }));
 
-        return new ActionToolbarImpl("ApplicationInsights", actionGroup , false);
+        actionGroup.add(new AbstractToggleUseSoftWrapsAction(SoftWrapAppliancePlaces.PREVIEW, false) {
+            {
+                ActionUtil.copyFrom(this, "EditorToggleUseSoftWraps");
+            }
+
+            @Nullable
+            @Override
+            protected Editor getEditor(@NotNull AnActionEvent e) {
+                return editor;
+            }
+        });
+
+        return new ActionToolbarImpl("ApplicationInsights", actionGroup, false);
     }
 }
