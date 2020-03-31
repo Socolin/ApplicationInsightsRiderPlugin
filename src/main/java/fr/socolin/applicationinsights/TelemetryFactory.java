@@ -3,9 +3,14 @@ package fr.socolin.applicationinsights;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import fr.socolin.applicationinsights.metricdata.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TelemetryFactory {
     private final JsonParser jsonParser;
@@ -49,7 +54,8 @@ public class TelemetryFactory {
             case Unk:
                 break;
         }
-        return new Telemetry(type, json, jsonObject, telemetryData);
+        Type tagsMapType = new TypeToken<Map<String, String>>() {}.getType();
+        return new Telemetry(type, json, jsonObject, telemetryData, gson.fromJson(jsonObject.get("tags"), tagsMapType));
     }
 
     @Nullable

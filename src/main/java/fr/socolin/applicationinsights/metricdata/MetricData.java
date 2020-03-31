@@ -14,4 +14,9 @@ public class MetricData implements ITelemetryData {
 
     public ArrayList<Metric> metrics;
     public HashMap<String, String> properties;
+
+    @Override
+    public HashMap<String, String> getProperties() {
+        return properties;
+    }
 }

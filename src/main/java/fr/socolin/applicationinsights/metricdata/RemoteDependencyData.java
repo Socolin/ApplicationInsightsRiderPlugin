@@ -12,4 +12,9 @@ public class RemoteDependencyData implements ITelemetryData {
     public String type;
     public String target;
     public HashMap<String, String> properties;
+
+    @Override
+    public HashMap<String, String> getProperties() {
+        return properties;
+    }
 }

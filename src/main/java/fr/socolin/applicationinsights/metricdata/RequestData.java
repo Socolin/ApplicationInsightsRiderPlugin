@@ -10,4 +10,9 @@ public class RequestData implements ITelemetryData {
     public String responseCode;
     public String url;
     public HashMap<String, String> properties;
+
+    @Override
+    public HashMap<String, String> getProperties() {
+        return properties;
+    }
 }

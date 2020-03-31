@@ -24,4 +24,10 @@ public class ExceptionData implements ITelemetryData {
     public String severityLevel;
     public ArrayList<ExceptionDetailData> exceptions;
     public HashMap<String, String> properties;
+
+    @Override
+    public HashMap<String, String> getProperties() {
+        return properties;
+    }
+
 }

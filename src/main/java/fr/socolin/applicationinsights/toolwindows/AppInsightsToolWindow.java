@@ -10,14 +10,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.EditorKind;
 import com.intellij.openapi.editor.actions.AbstractToggleUseSoftWrapsAction;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
@@ -25,27 +26,28 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBUI;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
-import fr.socolin.applicationinsights.metricdata.ExceptionData;
+import fr.socolin.applicationinsights.metricdata.*;
 import fr.socolin.applicationinsights.toolwindows.components.AutoScrollToTheEndToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.components.ColorBox;
 import fr.socolin.applicationinsights.toolwindows.components.FilterIndicatorToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
+import fr.socolin.applicationinsights.utils.TimeSpan;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +84,7 @@ public class AppInsightsToolWindow {
     private JScrollPane logsScrollPane;
     private ActionToolbarImpl toolbar;
     private JComponent editorPanel;
+    private JPanel formattedTelemetryInfo;
 
     @NotNull
     private JLabel[] telemetryTypesCounter;
@@ -140,31 +143,179 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getSelectionModel().addListSelectionListener(e -> {
             Telemetry telemetry = telemetryTableModel.getRow(appInsightsLogsTable.getSelectedRow());
             if (telemetry == null) {
-                updateJsonPreview("");
+                selectTelemetry(null);
                 return;
             }
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            updateJsonPreview(gson.toJson(telemetry.getJsonObject()));
+            selectTelemetry(telemetry);
+        });
+    }
 
-            if (telemetry.getType() == TelemetryType.Exception) {
-                ExceptionData data = telemetry.getData(ExceptionData.class);
-                for (ExceptionData.ExceptionDetailData exception : data.exceptions) {
-                    boolean found = false;
-                    for (ExceptionData.ExceptionDetailData.Stack stack : exception.parsedStack) {
+    private void selectTelemetry(@Nullable Telemetry telemetry) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        updateJsonPreview(gson.toJson(telemetry == null ? "" : telemetry.getJsonObject()));
+
+        if (telemetry == null) {
+            return;
+        }
+        formattedTelemetryInfo.removeAll();
+
+        if (telemetry.getFilteredBy() != null) {
+            formattedTelemetryInfo.add(new JLabel("This log was filtered by " + telemetry.getFilteredBy()), createConstraint(0, 0, 0));
+        }
+
+        int column = 1;
+        if (telemetry.getTags() != null && telemetry.getTags().containsKey("ai.operation.id")) {
+            formattedTelemetryInfo.add(createTitleLabel("OperationId"), createConstraint(0, column++, 0));
+            JLabel jLabel = new JLabel("<html><a href=''>" + telemetry.getTags().get("ai.operation.id") + "</a></html>");
+            jLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            jLabel.addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    applicationInsightsSession.updateFilter(telemetry.getTags().get("ai.operation.id"));
+                    filter.setText(telemetry.getTags().get("ai.operation.id"));
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                }
+            });
+            formattedTelemetryInfo.add(jLabel, createConstraint(0, column++, 30));
+
+        }
+
+        if (telemetry.getType() == TelemetryType.Message) {
+            formattedTelemetryInfo.add(createTitleLabel("Message"), createConstraint(0, column++, 0));
+            MessageData messageData = telemetry.getData(MessageData.class);
+            formattedTelemetryInfo.add(new JLabel(messageData.message), createConstraint(0, column++, 30));
+        }
+        if (telemetry.getType() == TelemetryType.Request) {
+            formattedTelemetryInfo.add(createTitleLabel("Request"), createConstraint(0, column++, 0));
+            RequestData requestData = telemetry.getData(RequestData.class);
+            formattedTelemetryInfo.add(new JLabel(requestData.name), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Status code:" + requestData.responseCode), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(requestData.duration).toString()), createConstraint(0, column++, 30));
+        }
+        if (telemetry.getType() == TelemetryType.RemoteDependency) {
+            formattedTelemetryInfo.add(createTitleLabel("Dependency"), createConstraint(0, column++, 0));
+            RemoteDependencyData remoteDependencyData = telemetry.getData(RemoteDependencyData.class);
+            formattedTelemetryInfo.add(new JLabel("Success: " + remoteDependencyData.success), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Type: " + remoteDependencyData.type), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Target: " + remoteDependencyData.target), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Data " + remoteDependencyData.data), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("ResultCode: " + remoteDependencyData.resultCode), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(remoteDependencyData.duration).toString()), createConstraint(0, column++, 30));
+        }
+        if (telemetry.getType() == TelemetryType.Exception) {
+            formattedTelemetryInfo.add(createTitleLabel("Exception"), createConstraint(0, column++, 0));
+            ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
+            for (ExceptionData.ExceptionDetailData exception : exceptionData.exceptions) {
+                formattedTelemetryInfo.add(new JLabel(exception.message), createConstraint(0, column++, 30));
+                for (ExceptionData.ExceptionDetailData.Stack stack : exception.parsedStack) {
+                    VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + stack.fileName);
+                    JLabel jLabel;
+                    if (file != null) {
+                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + "</html>"), createConstraint(0, column++, 60));
+                        jLabel = new JLabel("<html><a href=''>" + stack.fileName + ":" + stack.line + "</a></html>");
+                        jLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        jLabel.addMouseListener(createMouseListenerNavigateToStack(stack, file));
+                        formattedTelemetryInfo.add(jLabel, createConstraint(0, column++, 90));
+                    } else {
+                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + "</html>"), createConstraint(0, column++, 60));
                         if (stack.fileName != null) {
-                            VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + stack.fileName);
-                            if (file != null) {
-                                OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0));
-                                found = true;
-                                break;
-                            }
+                            formattedTelemetryInfo.add(new JLabel("<html><a href=''>" + stack.fileName + ":" + stack.line + "</a></html>"), createConstraint(0, column++, 90));
                         }
                     }
-                    if (found)
-                        break;
                 }
             }
-        });
+        }
+
+        ITelemetryData telemetryData = telemetry.getData(ITelemetryData.class);
+        if (telemetryData != null && telemetryData.getProperties() != null && telemetryData.getProperties().size() > 0) {
+            formattedTelemetryInfo.add(createTitleLabel("Properties"), createConstraint(0, column++, 0));
+            for (Map.Entry<String, String> entry : telemetryData.getProperties().entrySet()) {
+                formattedTelemetryInfo.add(new JLabel(entry.getKey() + ": " + entry.getValue()), createConstraint(0, column++, 30));
+            }
+        }
+
+        // Padding
+        {
+            GridBagConstraints c = createConstraint(0, 10_000, 0);
+            c.weighty = 1;
+            formattedTelemetryInfo.add(new JPanel(), c);
+        }
+
+        formattedTelemetryInfo.revalidate();
+        formattedTelemetryInfo.repaint();
+    }
+
+    @NotNull
+    private MouseListener createMouseListenerNavigateToStack(ExceptionData.ExceptionDetailData.Stack stack, @NotNull VirtualFile file) {
+        return new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                    OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
+    }
+
+    @NotNull
+    private JLabel createTitleLabel(String label) {
+        JLabel title = new JLabel("<html><b>" + label + "</b></html>");
+        Font f = title.getFont();
+        f.deriveFont(Font.BOLD);
+        title.setFont(f);
+        return title;
+    }
+
+    @NotNull
+    private GridBagConstraints createConstraint(int x, int y, int padX) {
+        GridBagConstraints gridConstraints = new GridBagConstraints();
+        gridConstraints.gridx = x;
+        gridConstraints.gridy = y;
+        gridConstraints.gridheight = 1;
+        gridConstraints.gridwidth = 1;
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridConstraints.weightx = 1;
+        gridConstraints.weighty = 0;
+        gridConstraints.anchor = GridBagConstraints.NORTHEAST;
+        gridConstraints.insets = JBUI.insetsLeft(padX);
+        return gridConstraints;
     }
 
     private void updateJsonPreview(String text) {
@@ -283,8 +434,9 @@ public class AppInsightsToolWindow {
         toolbar = createToolbar();
 
         jsonPreviewDocument = new LanguageTextField.SimpleDocumentCreator().createDocument("", JsonLanguage.INSTANCE, project);
-        editor = EditorFactory.getInstance().createEditor(jsonPreviewDocument, project, JsonFileType.INSTANCE, true);
+        editor = EditorFactory.getInstance().createViewer(jsonPreviewDocument, project, EditorKind.MAIN_EDITOR);
         if (editor instanceof EditorEx) {
+            ((EditorEx) editor).setHighlighter(EditorHighlighterFactory.getInstance().createEditorHighlighter(project, JsonFileType.INSTANCE));
             ((EditorEx) editor).getFoldingModel().setFoldingEnabled(true);
         }
         editor.getSettings().setIndentGuidesShown(true);

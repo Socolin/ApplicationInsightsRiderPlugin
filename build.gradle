@@ -57,6 +57,10 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
+    <li>1.0.7</li>
+    <ul>
+        <li>Display logs in a formatted way. Especially make exceptions more readable, and stack make stack trace clickable.</li>
+    </ul>
     <li>1.0.6</li>
     <ul>
         <li>Add button to toggle auto-scroll when new log are added</li>
