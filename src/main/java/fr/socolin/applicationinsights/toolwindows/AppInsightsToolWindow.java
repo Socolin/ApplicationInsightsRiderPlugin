@@ -27,7 +27,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
-import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBUI;
@@ -43,7 +42,6 @@ import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryTypeRender;
 import fr.socolin.applicationinsights.utils.TimeSpan;
-import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AppInsightsToolWindow {
-    private static final Logger log = Logger.getInstance("AppInsightsToolWindow");
     private final Project project;
     private final TelemetryRender telemetryRender = new TelemetryRender();
     private final Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
@@ -95,13 +92,13 @@ public class AppInsightsToolWindow {
     @NotNull
     private TelemetryTableModel telemetryTableModel;
     private boolean autoScrollToTheEnd;
-    @NonNull
+    @NotNull
     private Editor editor;
-    @NonNull
+    @NotNull
     private Document jsonPreviewDocument;
 
 
-    public AppInsightsToolWindow(@NonNull ApplicationInsightsSession applicationInsightsSession, @NotNull Project project) {
+    public AppInsightsToolWindow(@NotNull ApplicationInsightsSession applicationInsightsSession, @NotNull Project project) {
         this.project = project;
         this.applicationInsightsSession = applicationInsightsSession;
 
@@ -133,8 +130,7 @@ public class AppInsightsToolWindow {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if (AppInsightsToolWindow.this.applicationInsightsSession != null)
-                    AppInsightsToolWindow.this.applicationInsightsSession.updateFilter(filter.getText());
+                AppInsightsToolWindow.this.applicationInsightsSession.updateFilter(filter.getText());
             }
 
             @Override
@@ -213,6 +209,18 @@ public class AppInsightsToolWindow {
             formattedTelemetryInfo.add(new JLabel("Status code:" + requestData.responseCode), createConstraint(0, column++, 30));
             formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(requestData.duration).toString()), createConstraint(0, column++, 30));
         }
+        if (telemetry.getType() == TelemetryType.Metric) {
+            formattedTelemetryInfo.add(createTitleLabel("Metric"), createConstraint(0, column++, 0));
+            MetricData metricData = telemetry.getData(MetricData.class);
+            if (metricData.metrics != null) {
+                for (MetricData.Metric metric : metricData.metrics) {
+                    formattedTelemetryInfo.add(new JLabel(metric.name), createConstraint(0, column++, 30));
+                    formattedTelemetryInfo.add(new JLabel("Kind: " + metric.kind), createConstraint(0, column++, 60));
+                    formattedTelemetryInfo.add(new JLabel("Value: " + metric.value), createConstraint(0, column++, 60));
+                    formattedTelemetryInfo.add(new JLabel("Count: " + metric.count), createConstraint(0, column++, 60));
+                }
+            }
+        }
         if (telemetry.getType() == TelemetryType.RemoteDependency) {
             formattedTelemetryInfo.add(createTitleLabel("Dependency"), createConstraint(0, column++, 0));
             RemoteDependencyData remoteDependencyData = telemetry.getData(RemoteDependencyData.class);
@@ -238,7 +246,7 @@ public class AppInsightsToolWindow {
                         jLabel.addMouseListener(createMouseListenerNavigateToStack(stack, file));
                         formattedTelemetryInfo.add(jLabel, createConstraint(0, column++, 90));
                     } else {
-                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + "</html>"), createConstraint(0, column++, 60));
+                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + ", " + stack.assembly + "</html>"), createConstraint(0, column++, 60));
                         if (stack.fileName != null) {
                             formattedTelemetryInfo.add(new JLabel("<html><a href=''>" + stack.fileName + ":" + stack.line + "</a></html>"), createConstraint(0, column++, 90));
                         }
@@ -271,7 +279,7 @@ public class AppInsightsToolWindow {
         return new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                    OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0));
+                OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0));
             }
 
             @Override
@@ -479,7 +487,7 @@ public class AppInsightsToolWindow {
                 PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.useSoftWrap", state);
             }
 
-            @Nullable
+            @NotNull
             @Override
             protected Editor getEditor(@NotNull AnActionEvent e) {
                 return editor;
