@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.6'
+version '1.0.7'
 
 def intelijiBranch= 'eap'
 if (project.hasProperty('buildType')) {
@@ -36,7 +36,7 @@ publishPlugin {
     if (intelijiBranch == 'eap') {
         channels 'eap'
     } else {
-        channels 'alpha'
+        channels 'stable'
     }
     token intellijPublishToken
 }
