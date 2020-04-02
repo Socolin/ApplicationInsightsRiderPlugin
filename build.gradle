@@ -60,6 +60,7 @@ patchPluginXml {
     <li>1.0.7</li>
     <ul>
         <li>Display logs in a formatted way. Especially make exceptions more readable, and stack make stack trace clickable.</li>
+        <li>Add clear button</li>
     </ul>
     <li>1.0.6</li>
     <ul>

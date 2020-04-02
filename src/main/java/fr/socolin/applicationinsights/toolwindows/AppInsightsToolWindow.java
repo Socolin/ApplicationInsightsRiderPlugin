@@ -6,6 +6,7 @@ import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
@@ -35,6 +36,7 @@ import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.*;
 import fr.socolin.applicationinsights.toolwindows.components.AutoScrollToTheEndToolbarAction;
+import fr.socolin.applicationinsights.toolwindows.components.ClearApplicationInsightsLogToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.components.ColorBox;
 import fr.socolin.applicationinsights.toolwindows.components.FilterIndicatorToolbarAction;
 import fr.socolin.applicationinsights.toolwindows.renderers.TelemetryDateRender;
@@ -481,6 +483,13 @@ public class AppInsightsToolWindow {
             @Override
             protected Editor getEditor(@NotNull AnActionEvent e) {
                 return editor;
+            }
+        });
+
+        actionGroup.add(new ClearApplicationInsightsLogToolbarAction() {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
+                applicationInsightsSession.clear();
             }
         });
 
