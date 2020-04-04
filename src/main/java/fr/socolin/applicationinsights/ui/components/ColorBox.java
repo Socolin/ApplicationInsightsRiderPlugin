@@ -1,4 +1,4 @@
-package fr.socolin.applicationinsights.toolwindows.components;
+package fr.socolin.applicationinsights.ui.components;
 
 import com.intellij.ui.JBColor;
 

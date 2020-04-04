@@ -1,4 +1,4 @@
-package fr.socolin.applicationinsights.toolwindows;
+package fr.socolin.applicationinsights.ui;
 
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;

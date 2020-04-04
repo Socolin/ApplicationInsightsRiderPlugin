@@ -1,28 +1,22 @@
 package fr.socolin.applicationinsights;
 
-import com.intellij.execution.ui.layout.PlaceInGrid;
-import com.intellij.ui.content.Content;
-import com.intellij.util.IconUtil;
 import com.intellij.xdebugger.XDebugProcess;
-import com.intellij.xdebugger.XDebugSession;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
-import fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindow;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ApplicationInsightsSessionManager {
+    @Nullable
     private static ApplicationInsightsSessionManager instance;
-    private TelemetryFactory telemetryFactory = new TelemetryFactory();
+    @NotNull
+    private final TelemetryFactory telemetryFactory = new TelemetryFactory();
 
+    @NotNull
     public static ApplicationInsightsSessionManager getInstance() {
         if (instance == null)
             instance = new ApplicationInsightsSessionManager();
         return instance;
     }
-
-    private Map<XDebugProcess, ApplicationInsightsSession> sessions = new HashMap<>();
 
     private ApplicationInsightsSessionManager() {
     }
@@ -36,7 +30,6 @@ public class ApplicationInsightsSessionManager {
                 telemetryFactory,
                 (DotNetDebugProcess) debugProcess
         );
-        sessions.put(debugProcess, applicationInsightsSession);
         applicationInsightsSession.startListeningToOutputDebugMessage();
 
         return applicationInsightsSession;

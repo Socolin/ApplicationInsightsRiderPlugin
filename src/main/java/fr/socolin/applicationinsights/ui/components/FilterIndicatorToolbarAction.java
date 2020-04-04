@@ -1,26 +1,26 @@
-package fr.socolin.applicationinsights.toolwindows.components;
+package fr.socolin.applicationinsights.ui.components;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import fr.socolin.applicationinsights.ApplicationInsightsBundle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class AutoScrollToTheEndToolbarAction extends ToggleAction {
+public class FilterIndicatorToolbarAction extends ToggleAction {
     private boolean state;
     private Consumer<Boolean> onSelect;
 
-    public AutoScrollToTheEndToolbarAction(Consumer<Boolean> onSelect, boolean selected) {
+    public FilterIndicatorToolbarAction(Consumer<Boolean> onSelect, boolean selected) {
         super();
         this.onSelect = onSelect;
-        this.state = selected;
+        state = selected;
 
-        String message = ActionsBundle.message("action.EditorConsoleScrollToTheEnd.text");
+        String message = ApplicationInsightsBundle.message("action.ApplicationInsights.ToggleFilteredIndicator.text");
         this.getTemplatePresentation().setDescription(message);
         this.getTemplatePresentation().setText(message);
-        this.getTemplatePresentation().setIcon(AllIcons.RunConfigurations.Scroll_down);
+        this.getTemplatePresentation().setIcon(AllIcons.General.Filter);
     }
 
     @Override

@@ -4,8 +4,10 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.content.Content;
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
-import fr.socolin.applicationinsights.toolwindows.AppInsightsToolWindow;
+import fr.socolin.applicationinsights.ui.AppInsightsToolWindow;
 import kotlin.Unit;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -16,29 +18,36 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ApplicationInsightsSession {
-    public final List<Telemetry> telemetries = new ArrayList<>();
-    public List<Telemetry> filteredTelemetries = new ArrayList<>();
-    private TelemetryFactory telemetryFactory;
-    private DotNetDebugProcess dotNetDebugProcess;
-    private Set<TelemetryType> enabledTelemetryTypes = new HashSet<>();
+    @NotNull
+    private static final Icon appInsightsIcon = IconLoader.getIcon("/icons/application-insights.svg");
+    @NotNull
+    private final TelemetryFactory telemetryFactory;
+    @NotNull
+    private final DotNetDebugProcess dotNetDebugProcess;
+    @NotNull
+    private final List<Telemetry> telemetries = new ArrayList<>();
+    @NotNull
+    private final List<Telemetry> filteredTelemetries = new ArrayList<>();
+    @NotNull
+    private final Set<TelemetryType> visibleTelemetryTypes = new HashSet<>();
+    @NotNull
     private String filter = "";
-    private boolean firstMessage = true;
     @Nullable
     private AppInsightsToolWindow appInsightsToolWindow;
-    private static final Icon icon = IconLoader.getIcon("/icons/application-insights.svg");
+    private boolean firstMessage = true;
 
     public ApplicationInsightsSession(
-            TelemetryFactory telemetryFactory,
-            DotNetDebugProcess dotNetDebugProcess
+            @NotNull TelemetryFactory telemetryFactory,
+            @NotNull DotNetDebugProcess dotNetDebugProcess
     ) {
         this.telemetryFactory = telemetryFactory;
         this.dotNetDebugProcess = dotNetDebugProcess;
 
-        this.enabledTelemetryTypes.add(TelemetryType.Message);
-        this.enabledTelemetryTypes.add(TelemetryType.Request);
-        this.enabledTelemetryTypes.add(TelemetryType.Exception);
-        this.enabledTelemetryTypes.add(TelemetryType.Event);
-        this.enabledTelemetryTypes.add(TelemetryType.RemoteDependency);
+        this.visibleTelemetryTypes.add(TelemetryType.Message);
+        this.visibleTelemetryTypes.add(TelemetryType.Request);
+        this.visibleTelemetryTypes.add(TelemetryType.Exception);
+        this.visibleTelemetryTypes.add(TelemetryType.Event);
+        this.visibleTelemetryTypes.add(TelemetryType.RemoteDependency);
     }
 
     public void startListeningToOutputDebugMessage() {
@@ -51,16 +60,33 @@ public class ApplicationInsightsSession {
         });
     }
 
-    public void setTelemetryFiltered(TelemetryType telemetryType, boolean filtered) {
-        if (filtered) {
-            this.enabledTelemetryTypes.remove(telemetryType);
+    public void setTelemetryFiltered(
+            @NotNull TelemetryType telemetryType,
+            boolean hidden
+    ) {
+        if (hidden) {
+            this.visibleTelemetryTypes.remove(telemetryType);
         } else {
-            this.enabledTelemetryTypes.add(telemetryType);
+            this.visibleTelemetryTypes.add(telemetryType);
         }
         updateFilteredTelemetries();
     }
 
-    private void addTelemetry(Telemetry telemetry) {
+    public boolean isTelemetryVisible(@NotNull TelemetryType telemetryType) {
+        return this.visibleTelemetryTypes.contains(telemetryType);
+    }
+
+    public void updateFilter(@NonNull String filter) {
+        this.filter = filter;
+        updateFilteredTelemetries();
+    }
+
+    public void clear() {
+        this.telemetries.clear();
+        updateFilteredTelemetries();
+    }
+
+    private void addTelemetry(@NotNull Telemetry telemetry) {
         if (firstMessage) {
             firstMessage = false;
 
@@ -70,7 +96,7 @@ public class ApplicationInsightsSession {
                     "appinsights",
                     appInsightsToolWindow.getContent(),
                     "Application Insights",
-                    icon,
+                    appInsightsIcon,
                     null
             );
             dotNetDebugProcess.getSession().getUI().addContent(content);
@@ -79,7 +105,7 @@ public class ApplicationInsightsSession {
         boolean visible = false;
         synchronized (telemetries) {
             telemetries.add(telemetry);
-            if (isVisible(telemetry)) {
+            if (isTelemetryVisible(telemetry)) {
                 filteredTelemetries.add(telemetry);
                 visible = true;
             }
@@ -90,29 +116,18 @@ public class ApplicationInsightsSession {
 
     private void updateFilteredTelemetries() {
         synchronized (telemetries) {
-            filteredTelemetries = telemetries.stream()
-                    .filter(this::isVisible)
-                    .collect(Collectors.toList());
+            filteredTelemetries.clear();
+            filteredTelemetries.addAll(
+                    telemetries.stream()
+                            .filter(this::isTelemetryVisible)
+                            .collect(Collectors.toList())
+            );
         }
         if (appInsightsToolWindow != null)
             appInsightsToolWindow.setTelemetries(telemetries, filteredTelemetries);
     }
 
-    private boolean isVisible(Telemetry telemetry) {
-        return enabledTelemetryTypes.contains(telemetry.getType()) && (filter.equals("") || telemetry.getJson().contains(filter));
-    }
-
-    public boolean isEnabled(TelemetryType telemetryType) {
-        return this.enabledTelemetryTypes.contains(telemetryType);
-    }
-
-    public void updateFilter(String filter) {
-        this.filter = filter;
-        updateFilteredTelemetries();
-    }
-
-    public void clear() {
-        this.telemetries.clear();
-        updateFilteredTelemetries();
+    private boolean isTelemetryVisible(@NotNull Telemetry telemetry) {
+        return visibleTelemetryTypes.contains(telemetry.getType()) && (filter.equals("") || telemetry.getJson().contains(filter));
     }
 }

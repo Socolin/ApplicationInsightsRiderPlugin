@@ -1,9 +1,6 @@
-package fr.socolin.applicationinsights.toolwindows.renderers;
-
-import com.intellij.ui.JBColor;
+package fr.socolin.applicationinsights.ui.renderers;
 
 import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;

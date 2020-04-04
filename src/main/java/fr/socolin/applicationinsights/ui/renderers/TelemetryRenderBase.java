@@ -1,7 +1,6 @@
-package fr.socolin.applicationinsights.toolwindows.renderers;
+package fr.socolin.applicationinsights.ui.renderers;
 
 import com.intellij.ui.JBColor;
-import fr.socolin.applicationinsights.Telemetry;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
