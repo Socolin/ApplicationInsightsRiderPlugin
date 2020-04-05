@@ -14,6 +14,7 @@ import java.util.Map;
 public class TelemetryFactory {
     @NotNull
     private final Gson gson;
+    private final JsonParser jsonParser = new JsonParser();
 
     public TelemetryFactory() {
         gson = new Gson();
@@ -21,7 +22,7 @@ public class TelemetryFactory {
 
     @NotNull
     public Telemetry fromJson(@NotNull String json) {
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+        JsonObject jsonObject = jsonParser.parse(json).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
         TelemetryType type = TelemetryType.fromType(name);
