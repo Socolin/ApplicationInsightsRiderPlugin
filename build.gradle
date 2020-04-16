@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.7'
+version '1.0.8'
 
 def intelijiBranch= 'eap'
 if (project.hasProperty('buildType')) {
@@ -46,9 +46,9 @@ intellij {
     type = 'RD'
 
     if (intelijiBranch == 'stable') {
-        version '2019.3.4'
+        version '2020.1.0'
     } else if (intelijiBranch == 'eap') {
-        version '2020.1-EAP6-SNAPSHOT'
+        version '2020.1-EAP8-SNAPSHOT'
     }
 
     downloadSources = false
@@ -57,6 +57,10 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
+    <li>1.0.8</li>
+    <ul>
+        <li>Support Rider 2020.1</li>
+    </ul>
     <li>1.0.7</li>
     <ul>
         <li>Display logs in a formatted way. Especially make exceptions more readable, and stack make stack trace clickable.</li>
