@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.8'
+version '1.0.9'
 
 def intelijiBranch= 'eap'
 if (project.hasProperty('buildType')) {
@@ -57,44 +57,9 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.0.8</li>
+    <li>1.0.9</li>
     <ul>
-        <li>Support Rider 2020.1</li>
-    </ul>
-    <li>1.0.7</li>
-    <ul>
-        <li>Display logs in a formatted way. Especially make exceptions more readable, and stack make stack trace clickable.</li>
-        <li>Add clear button</li>
-    </ul>
-    <li>1.0.6</li>
-    <ul>
-        <li>Add button to toggle auto-scroll when new log are added</li>
-        <li>General UI improvements</li>
-        <li>Add indicator on logs filtered by a TelemetryProcessor (like the AdaptiveSampling or SamplingTelemetryProcessor.</li>
-        <li>The ApplicationInsights tab will only appear on first application insights log. It will not appear on project that does not use AI</li>
-    </ul>
-    <li>1.0.5</li>
-    <ul>
-        <li>Add filter fields. That allow to filtering logs matching the text</li>
-    </ul>
-    <li>1.0.4</li>
-    <ul>
-        <li>Add numbers of each metrics. It allow to notify there are metrics coming in even when they are filtered out</li>
-        <li>Small improvement on UI</li>
-    </ul>
-    <li>1.0.3</li>
-    <ul>
-        <li>Move Application Insights tool window to the debugger panel, in a new tab</li>
-        <li>Selecting an exception in logs will go to where this exception was throw in the code</li>
-    </ul>
-    <li>1.0.2</li>
-    <ul>
-        <li>Remove "Refresh" button, logs are now collected automatically when starting a debug session</li>
-        <li>Add option to filter log by type</li>
-    </ul>
-    <li>1.0.2</li>
-    <ul>
-        <li>Initial version</li>
+        <li>Fix issue with Microsoft.ApplicationInsights 2.14.0</li>
     </ul>
 </ul>
 """
