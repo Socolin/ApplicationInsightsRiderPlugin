@@ -48,6 +48,7 @@ public class ApplicationInsightsSession {
         this.visibleTelemetryTypes.add(TelemetryType.Exception);
         this.visibleTelemetryTypes.add(TelemetryType.Event);
         this.visibleTelemetryTypes.add(TelemetryType.RemoteDependency);
+        this.visibleTelemetryTypes.add(TelemetryType.Unk);
     }
 
     public void startListeningToOutputDebugMessage() {
