@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.16'
+    id 'org.jetbrains.intellij' version '0.4.21'
 }
 
 group 'fr.socolin'
-version '1.0.9'
+version '1.0.10'
 
 def intelijiBranch= 'eap'
 if (project.hasProperty('buildType')) {
@@ -46,7 +46,7 @@ intellij {
     type = 'RD'
 
     if (intelijiBranch == 'stable') {
-        version '2020.1.0'
+        version '2020.2'
     } else if (intelijiBranch == 'eap') {
         version '2020.1-EAP8-SNAPSHOT'
     }
@@ -57,9 +57,9 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.0.9</li>
+    <li>1.0.10</li>
     <ul>
-        <li>Fix issue with Microsoft.ApplicationInsights 2.14.0</li>
+        <li>Compatible with Rider 2020.2</li>
     </ul>
 </ul>
 """

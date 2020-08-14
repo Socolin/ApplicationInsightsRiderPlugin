@@ -21,10 +21,6 @@ Then the plugins will be in `build/distributions`
 
 ![Screenshot](screenshots/screenshot1.png)
 
-### TODO:
-
-- Revert ApplicationInsightsBundle to new version once stable is 2020.1 (commit `f36cc8f87e59227bf13fd24de42696f91c0f7130`)
-
 ### License
 
 MIT

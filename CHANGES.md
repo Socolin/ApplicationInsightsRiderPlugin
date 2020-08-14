@@ -1,3 +1,7 @@
+### 1.0.10
+
+* Support Rider 2020.2
+
 ### 1.0.9
 
 * Fix issue with Microsoft.ApplicationInsights 2.14.0
