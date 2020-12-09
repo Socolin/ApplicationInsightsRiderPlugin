@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.21'
+    id "org.jetbrains.intellij" version "0.6.5"
 }
 
 group 'fr.socolin'
@@ -48,7 +48,7 @@ intellij {
     if (intelijiBranch == 'stable') {
         version '2020.2'
     } else if (intelijiBranch == 'eap') {
-        version '2020.1-EAP8-SNAPSHOT'
+        version '2020.3-EAP10-SNAPSHOT'
     }
 
     downloadSources = false
@@ -57,9 +57,9 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.0.10</li>
+    <li>1.0.11</li>
     <ul>
-        <li>Compatible with Rider 2020.2</li>
+        <li>Compatible with Rider 2020.3</li>
     </ul>
 </ul>
 """
