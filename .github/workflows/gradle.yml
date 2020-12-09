@@ -22,8 +22,8 @@ jobs:
         java-version: 1.8
     - name: Build stable version
       run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=stable
-#    - name: Build eap version
-#      run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
+    - name: Build eap version
+      run: gradle buildPlugin -PintellijPublishToken=unk -PbuildType=eap
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
