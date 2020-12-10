@@ -15,7 +15,7 @@ if (intelijiBranch == 'eap') {
     version = "$version-EAP"
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
