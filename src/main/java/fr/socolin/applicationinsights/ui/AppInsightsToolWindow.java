@@ -21,6 +21,7 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
@@ -135,7 +136,7 @@ public class AppInsightsToolWindow {
         splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
 
-        CodeFoldingManager.getInstance(project).buildInitialFoldings(jsonPreviewDocument);
+        CodeFoldingManager.getInstance(ProjectManager.getInstance().getDefaultProject()).buildInitialFoldings(jsonPreviewDocument);
 
         appInsightsLogsTable.setDefaultRenderer(Telemetry.class, telemetryRender);
         appInsightsLogsTable.setDefaultRenderer(TelemetryType.class, new TelemetryTypeRender());
@@ -315,7 +316,7 @@ public class AppInsightsToolWindow {
         ApplicationManager.getApplication().runWriteAction(() -> {
             jsonPreviewDocument.setText(sb.toString());
         });
-        CodeFoldingManager.getInstance(project).updateFoldRegions(editor);
+        CodeFoldingManager.getInstance(ProjectManager.getInstance().getDefaultProject()).updateFoldRegions(editor);
     }
 
     private void initTelemetryTypeFilters() {
