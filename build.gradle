@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.10'
+version '1.0.11'
 
 def intelijiBranch= 'eap'
 if (project.hasProperty('buildType')) {
@@ -46,7 +46,7 @@ intellij {
     type = 'RD'
 
     if (intelijiBranch == 'stable') {
-        version '2020.2'
+        version '2020.3'
     } else if (intelijiBranch == 'eap') {
         version '2020.3-EAP10-SNAPSHOT'
     }

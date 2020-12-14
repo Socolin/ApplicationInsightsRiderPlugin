@@ -1,3 +1,7 @@
+### 1.0.11
+
+* Support Rider 2020.3
+
 ### 1.0.10
 
 * Support Rider 2020.2
