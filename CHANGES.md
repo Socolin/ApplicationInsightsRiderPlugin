@@ -1,3 +1,7 @@
+### 1.0.12
+
+* Rework how exceptions are displayed. Exception are now parsed, and it's possible to click on symbols
+
 ### 1.0.11
 
 * Support Rider 2020.3
