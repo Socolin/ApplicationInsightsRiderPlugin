@@ -3,9 +3,15 @@ package fr.socolin.applicationinsights.ui;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
@@ -27,8 +33,10 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.unscramble.AnalyzeStacktraceUtil;
 import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBUI;
+import com.jetbrains.rider.model.StackTraceFilterProvider;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
@@ -122,6 +130,7 @@ public class AppInsightsToolWindow {
     @NotNull
     private Document jsonPreviewDocument;
     private boolean autoScrollToTheEnd;
+    private final TextConsoleBuilder builder;
 
 
     public AppInsightsToolWindow(
@@ -170,6 +179,9 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getSelectionModel().addListSelectionListener(e -> {
             selectTelemetry(telemetryTableModel.getRow(appInsightsLogsTable.getSelectedRow()));
         });
+
+        builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+        builder.filters(AnalyzeStacktraceUtil.EP_NAME.getExtensions(project));
     }
 
     private void selectTelemetry(@Nullable Telemetry telemetry) {
@@ -206,7 +218,7 @@ public class AppInsightsToolWindow {
             formattedTelemetryInfo.add(createTitleLabel("Request"), createConstraint(0, column++, 0));
             RequestData requestData = telemetry.getData(RequestData.class);
             formattedTelemetryInfo.add(new JLabel(requestData.name), createConstraint(0, column++, 30));
-            formattedTelemetryInfo.add(new JLabel("Status code:" + requestData.responseCode), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Status code: " + requestData.responseCode), createConstraint(0, column++, 30));
             formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(requestData.duration).toString()), createConstraint(0, column++, 30));
         }
         if (telemetry.getType() == TelemetryType.Metric) {
@@ -234,24 +246,12 @@ public class AppInsightsToolWindow {
         if (telemetry.getType() == TelemetryType.Exception) {
             formattedTelemetryInfo.add(createTitleLabel("Exception"), createConstraint(0, column++, 0));
             ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
+            var consoleView = builder.getConsole();
+            consoleView.clear();
+            consoleView.allowHeavyFilters();
             for (ExceptionData.ExceptionDetailData exception : exceptionData.exceptions) {
-                formattedTelemetryInfo.add(new JLabel(exception.message), createConstraint(0, column++, 30));
-                for (ExceptionData.ExceptionDetailData.Stack stack : exception.parsedStack) {
-                    VirtualFile file = VirtualFileManager.getInstance().findFileByUrl("file://" + stack.fileName);
-                    JLabel jLabel;
-                    if (file != null) {
-                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + "</html>"), createConstraint(0, column++, 60));
-                        jLabel = new JLabel("<html><a href=''>" + stack.fileName + ":" + stack.line + "</a></html>");
-                        jLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        jLabel.addMouseListener(new ClickListener(e -> OpenSourceUtil.navigate(true, new OpenFileDescriptor(project, file, Integer.parseInt(stack.line), 0))));
-                        formattedTelemetryInfo.add(jLabel, createConstraint(0, column++, 90));
-                    } else {
-                        formattedTelemetryInfo.add(new JLabel("<html>" + stack.method + ", " + stack.assembly + "</html>"), createConstraint(0, column++, 60));
-                        if (stack.fileName != null) {
-                            formattedTelemetryInfo.add(new JLabel("<html><a href=''>" + stack.fileName + ":" + stack.line + "</a></html>"), createConstraint(0, column++, 90));
-                        }
-                    }
-                }
+                consoleView.print(StackTraceFormatter.formatStackTrace(exception), ConsoleViewContentType.NORMAL_OUTPUT);
+                formattedTelemetryInfo.add(consoleView.getComponent(), createConstraint(0, column++, 30));
             }
         }
 
@@ -259,7 +259,13 @@ public class AppInsightsToolWindow {
         if (telemetryData != null && telemetryData.getProperties() != null && telemetryData.getProperties().size() > 0) {
             formattedTelemetryInfo.add(createTitleLabel("Properties"), createConstraint(0, column++, 0));
             for (Map.Entry<String, String> entry : telemetryData.getProperties().entrySet()) {
-                formattedTelemetryInfo.add(new JLabel(entry.getKey() + ": " + entry.getValue()), createConstraint(0, column++, 30));
+                JLabel jLabel = new JLabel("<html>" + entry.getKey() + ": " + "<a href=''>" + entry.getValue() + "</a></html>");
+                jLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                jLabel.addMouseListener(new ClickListener(e -> {
+                    applicationInsightsSession.updateFilter(entry.getValue());
+                    this.filter.setText(entry.getValue());
+                }));
+                formattedTelemetryInfo.add(jLabel, createConstraint(0, column++, 30));
             }
         }
 
