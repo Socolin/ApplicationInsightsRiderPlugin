@@ -1,3 +1,7 @@
+### 1.0.13
+
+* Fix crash when request does not have a status code
+
 ### 1.0.12
 
 * Rework how exceptions are displayed. Exception are now parsed, and it's possible to click on symbols

@@ -40,6 +40,16 @@ public class TelemetryRender extends TelemetryRenderBase {
             case Request: {
                 RequestData requestData = telemetry.getData(RequestData.class);
 
+                if (requestData.responseCode == null) {
+                    text = requestData.name;
+                    if (requestData.success) {
+                        super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Default", JBColor.foreground()));
+                    } else {
+                        super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
+                    }
+                    break;
+                }
+
                 if (requestData.responseCode.startsWith("5")) {
                     super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));
                 } else if (requestData.responseCode.startsWith("4")) {
