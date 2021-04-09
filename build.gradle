@@ -4,9 +4,9 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.0.13'
+version '1.1.0'
 
-def intelijiBranch= 'eap'
+def intelijiBranch= 'stable'
 if (project.hasProperty('buildType')) {
     intelijiBranch = project.property('buildType');
 }
@@ -46,7 +46,7 @@ intellij {
     type = 'RD'
 
     if (intelijiBranch == 'stable') {
-        version '2020.3'
+        version '2021.1.0'
     } else if (intelijiBranch == 'eap') {
         version '2020.3-EAP10-SNAPSHOT'
     }
@@ -57,9 +57,9 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.0.13</li>
+    <li>1.1.0</li>
     <ul>
-        <li>Fix crash when request does not have a status code</li>
+        <li>Update to 2021.1</li>
     </ul>
 </ul>
 """
