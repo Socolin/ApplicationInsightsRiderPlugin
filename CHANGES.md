@@ -1,3 +1,11 @@
+### 1.2.0
+
+* Support Rider 2020.2
+
+### 1.1.0 
+
+* Support Rider 2020.1
+
 ### 1.0.13
 
 * Fix crash when request does not have a status code

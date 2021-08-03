@@ -36,5 +36,5 @@
                   topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
     </projectListeners>
 
-    <idea-version since-build="2020.3" until-build="2021.*"/>
+    <idea-version since-build="2021.2" until-build="2021.*"/>
 </idea-plugin>

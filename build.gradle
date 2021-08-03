@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.1.0'
+version '1.2.0'
 
 def intelijiBranch= 'stable'
 if (project.hasProperty('buildType')) {
@@ -46,7 +46,7 @@ intellij {
     type = 'RD'
 
     if (intelijiBranch == 'stable') {
-        version '2021.1.0'
+        version '2021.2'
     } else if (intelijiBranch == 'eap') {
         version '2020.3-EAP10-SNAPSHOT'
     }
@@ -57,9 +57,9 @@ patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.1.0</li>
+    <li>1.2.0</li>
     <ul>
-        <li>Update to 2021.1</li>
+        <li>Update to 2021.2</li>
     </ul>
 </ul>
 """
