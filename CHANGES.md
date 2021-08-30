@@ -1,3 +1,7 @@
+### 1.2.1
+
+* Add a button to sort telemetry by duration
+
 ### 1.2.0
 
 * Support Rider 2020.2

@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.2.0'
+version '1.2.1'
 
 def intelijiBranch= 'stable'
 if (project.hasProperty('buildType')) {
