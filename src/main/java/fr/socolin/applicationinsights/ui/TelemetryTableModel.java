@@ -2,6 +2,7 @@ package fr.socolin.applicationinsights.ui;
 
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
+import fr.socolin.applicationinsights.utils.TimeSpan;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.table.AbstractTableModel;
@@ -9,10 +10,10 @@ import java.util.*;
 
 public class TelemetryTableModel extends AbstractTableModel {
     private final String[] columnNames = new String[]{
-            "timestamp", "type", "data"
+            "timestamp", "type", "duration", "data"
     };
     private final Class<?>[] columnClass = new Class[]{
-            Date.class, TelemetryType.class, Telemetry.class
+            Date.class, TelemetryType.class, TimeSpan.class, Telemetry.class
     };
     private List<Telemetry> telemetries;
 
@@ -49,6 +50,8 @@ public class TelemetryTableModel extends AbstractTableModel {
             case 1:
                 return telemetry.getType();
             case 2:
+                return telemetry.getDuration();
+            case 3:
                 return telemetry;
             default:
                 return null;
@@ -63,6 +66,11 @@ public class TelemetryTableModel extends AbstractTableModel {
 
     public void addRow(Telemetry telemetry) {
         this.telemetries.add(telemetry);
+        this.fireTableRowsInserted(this.telemetries.size() - 1, this.telemetries.size() - 1);
+    }
+
+    public void addRow(int i, Telemetry telemetry) {
+        this.telemetries.add(i, telemetry);
         this.fireTableRowsInserted(this.telemetries.size() - 1, this.telemetries.size() - 1);
     }
 

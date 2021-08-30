@@ -41,10 +41,7 @@ import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.*;
-import fr.socolin.applicationinsights.ui.components.AutoScrollToTheEndToolbarAction;
-import fr.socolin.applicationinsights.ui.components.ClearApplicationInsightsLogToolbarAction;
-import fr.socolin.applicationinsights.ui.components.ColorBox;
-import fr.socolin.applicationinsights.ui.components.FilterIndicatorToolbarAction;
+import fr.socolin.applicationinsights.ui.components.*;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryTypeRender;
@@ -53,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -158,6 +156,8 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getColumnModel().getColumn(0).setMaxWidth(130);
         appInsightsLogsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
         appInsightsLogsTable.getColumnModel().getColumn(1).setMaxWidth(100);
+        appInsightsLogsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+        appInsightsLogsTable.getColumnModel().getColumn(2).setMaxWidth(100);
         appInsightsLogsTable.getTableHeader().setUI(null);
 
         filter.addKeyListener(new KeyListener() {
@@ -373,13 +373,18 @@ public class AppInsightsToolWindow {
     }
 
     public void addTelemetry(
+            int index,
             @NotNull Telemetry telemetry,
-            boolean visible
+            boolean visible,
+            boolean shouldScroll
     ) {
         if (visible) {
-            telemetryTableModel.addRow(telemetry);
+            if (index != -1)
+                telemetryTableModel.addRow(index, telemetry);
+            else
+                telemetryTableModel.addRow(telemetry);
             SwingUtilities.invokeLater(() -> {
-                if (autoScrollToTheEnd) {
+                if (autoScrollToTheEnd && shouldScroll) {
                     performAutoScrollToTheEnd();
                 }
             });
@@ -452,6 +457,11 @@ public class AppInsightsToolWindow {
             this.appInsightsLogsTable.invalidate();
             this.appInsightsLogsTable.repaint();
         }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator")));
+
+        actionGroup.add(new ToggleDurationToolbarAction((selected) -> {
+            if (this.applicationInsightsSession != null)
+                this.applicationInsightsSession.toggleSortByDuration(selected);
+        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn")));
 
         actionGroup.add(new AbstractToggleUseSoftWrapsAction(SoftWrapAppliancePlaces.PREVIEW, false) {
             {

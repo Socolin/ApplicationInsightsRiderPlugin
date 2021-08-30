@@ -2,6 +2,9 @@ package fr.socolin.applicationinsights;
 
 import com.google.gson.JsonObject;
 import fr.socolin.applicationinsights.metricdata.ITelemetryData;
+import fr.socolin.applicationinsights.metricdata.RemoteDependencyData;
+import fr.socolin.applicationinsights.metricdata.RequestData;
+import fr.socolin.applicationinsights.utils.TimeSpan;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,5 +92,16 @@ public class Telemetry {
     @NotNull
     public Map<String, String> getTags() {
         return tags;
+    }
+
+    public TimeSpan getDuration() {
+        if (getType() == TelemetryType.Request) {
+            RequestData requestData = getData(RequestData.class);
+            return new TimeSpan(requestData.duration);
+        } else if (getType() == TelemetryType.RemoteDependency) {
+            RemoteDependencyData remoteDependencyData = getData(RemoteDependencyData.class);
+            return new TimeSpan(remoteDependencyData.duration);
+        }
+        return TimeSpan.Zero;
     }
 }

@@ -1,9 +1,11 @@
 package fr.socolin.applicationinsights;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.content.Content;
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
+import com.sun.jna.platform.win32.OaIdl;
 import fr.socolin.applicationinsights.ui.AppInsightsToolWindow;
 import kotlin.Unit;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
@@ -11,11 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ApplicationInsightsSession {
     @NotNull
@@ -35,6 +35,7 @@ public class ApplicationInsightsSession {
     @Nullable
     private AppInsightsToolWindow appInsightsToolWindow;
     private boolean firstMessage = true;
+    private boolean sortByDuration = false;
 
     public ApplicationInsightsSession(
             @NotNull TelemetryFactory telemetryFactory,
@@ -49,6 +50,8 @@ public class ApplicationInsightsSession {
         this.visibleTelemetryTypes.add(TelemetryType.Event);
         this.visibleTelemetryTypes.add(TelemetryType.RemoteDependency);
         this.visibleTelemetryTypes.add(TelemetryType.Unk);
+
+        this.sortByDuration = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn");
     }
 
     public void startListeningToOutputDebugMessage() {
@@ -103,26 +106,33 @@ public class ApplicationInsightsSession {
             dotNetDebugProcess.getSession().getUI().addContent(content);
         }
 
+        int index = -1;
         boolean visible = false;
         synchronized (telemetries) {
             telemetries.add(telemetry);
             if (isTelemetryVisible(telemetry)) {
-                filteredTelemetries.add(telemetry);
+                if (sortByDuration) {
+                    index = Collections.binarySearch(filteredTelemetries, telemetry, Comparator.comparing(Telemetry::getDuration));
+                    if (index < 0) index = ~index;
+                    filteredTelemetries.add(index, telemetry);
+                } else
+                    filteredTelemetries.add(telemetry);
                 visible = true;
             }
         }
         if (appInsightsToolWindow != null)
-            appInsightsToolWindow.addTelemetry(telemetry, visible);
+            appInsightsToolWindow.addTelemetry(index, telemetry, visible, !sortByDuration);
     }
 
     private void updateFilteredTelemetries() {
         synchronized (telemetries) {
             filteredTelemetries.clear();
-            filteredTelemetries.addAll(
-                    telemetries.stream()
-                            .filter(this::isTelemetryVisible)
-                            .collect(Collectors.toList())
-            );
+            Stream<Telemetry> stream = telemetries.stream()
+                    .filter(this::isTelemetryVisible);
+            if (sortByDuration)
+                stream = stream.sorted(Comparator.comparing(Telemetry::getDuration));
+
+            filteredTelemetries.addAll(stream.collect(Collectors.toList()));
         }
         if (appInsightsToolWindow != null)
             appInsightsToolWindow.setTelemetries(telemetries, filteredTelemetries);
@@ -130,5 +140,10 @@ public class ApplicationInsightsSession {
 
     private boolean isTelemetryVisible(@NotNull Telemetry telemetry) {
         return visibleTelemetryTypes.contains(telemetry.getType()) && (filter.equals("") || telemetry.getJson().contains(filter));
+    }
+
+    public void toggleSortByDuration(boolean sortByDuration) {
+        this.sortByDuration = sortByDuration;
+        this.updateFilteredTelemetries();
     }
 }
