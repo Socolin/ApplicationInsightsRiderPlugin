@@ -1,65 +1,47 @@
 plugins {
     id 'java'
-    id "org.jetbrains.intellij" version "0.6.5"
+    id "org.jetbrains.intellij" version "0.7.3"
 }
 
 group 'fr.socolin'
-version '1.2.1'
+version '1.3.0'
 
-def intelijiBranch= 'stable'
+
 if (project.hasProperty('buildType')) {
     intelijiBranch = project.property('buildType');
-}
-
-if (intelijiBranch == 'eap') {
-    version = "$version-EAP"
 }
 
 sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
-    if (intelijiBranch == 'stable') {
-        maven { url "https://www.jetbrains.com/intellij-repository/releases" }
-    }
-    if (intelijiBranch == 'eap') {
-        maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
-    }
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.code.gson:gson:2.8.8'
 }
 
 publishPlugin {
-    if (intelijiBranch == 'eap') {
-        channels 'eap'
-    } else {
-        channels 'stable'
-    }
     token intellijPublishToken
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     type = 'RD'
-
-    if (intelijiBranch == 'stable') {
-        version '2021.2'
-    } else if (intelijiBranch == 'eap') {
-        version '2020.3-EAP10-SNAPSHOT'
-    }
-
+    version '2021.3-EAP1-SNAPSHOT'
     downloadSources = false
 }
+
 patchPluginXml {
     version = project.version
     changeNotes """
 <ul>
-    <li>1.2.0</li>
+    <li>1.3.0</li>
     <ul>
-        <li>Update to 2021.2</li>
+        <li>Update to 2021.3</li>
     </ul>
 </ul>
 """
