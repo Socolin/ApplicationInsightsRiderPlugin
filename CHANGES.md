@@ -1,3 +1,7 @@
+### 1.4.0
+
+* Support Rider 2022.1
+
 ### 1.3.0
 
 * Support Rider 2021.3

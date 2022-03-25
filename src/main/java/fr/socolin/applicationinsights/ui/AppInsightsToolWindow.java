@@ -5,13 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
@@ -25,18 +22,13 @@ import com.intellij.openapi.editor.actions.AbstractToggleUseSoftWrapsAction;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory;
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.unscramble.AnalyzeStacktraceUtil;
-import com.intellij.util.OpenSourceUtil;
 import com.intellij.util.ui.JBUI;
-import com.jetbrains.rider.model.StackTraceFilterProvider;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
@@ -50,11 +42,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.List;
+import java.util.*;
 
 public class AppInsightsToolWindow {
     @NotNull

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class ApplicationInsightsSession {
     @NotNull
-    private static final Icon appInsightsIcon = IconLoader.getIcon("/icons/application-insights.svg");
+    private static final Icon appInsightsIcon = IconLoader.getIcon("/icons/application-insights.svg", ApplicationInsightsSession.class);
     @NotNull
     private final TelemetryFactory telemetryFactory;
     @NotNull
