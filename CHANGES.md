@@ -1,6 +1,6 @@
 ### 1.3.0
 
-* Support Rider 2020.3
+* Support Rider 2021.3
 
 ### 1.2.1
 
@@ -8,11 +8,11 @@
 
 ### 1.2.0
 
-* Support Rider 2020.2
+* Support Rider 2021.2
 
 ### 1.1.0 
 
-* Support Rider 2020.1
+* Support Rider 2021.1
 
 ### 1.0.13
 
