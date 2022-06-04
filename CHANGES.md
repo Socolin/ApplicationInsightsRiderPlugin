@@ -1,3 +1,9 @@
+### 1.5.0
+
+* Add button to clear filter
+* Add a new setting to filter out logs. The settings is per project and persistent
+* Add sort by date
+
 ### 1.4.0
 
 * Support Rider 2022.1
