@@ -5,7 +5,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.content.Content;
 import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
-import com.sun.jna.platform.win32.OaIdl;
+import fr.socolin.applicationinsights.settings.ProjectSettingsState;
 import fr.socolin.applicationinsights.ui.AppInsightsToolWindow;
 import kotlin.Unit;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
@@ -30,12 +30,15 @@ public class ApplicationInsightsSession {
     private final List<Telemetry> filteredTelemetries = new ArrayList<>();
     @NotNull
     private final Set<TelemetryType> visibleTelemetryTypes = new HashSet<>();
+    private boolean caseInsensitiveSearch;
     @NotNull
     private String filter = "";
+    private String filterLowerCase = "";
     @Nullable
     private AppInsightsToolWindow appInsightsToolWindow;
     private boolean firstMessage = true;
-    private boolean sortByDuration = false;
+    private boolean sortByDuration;
+    private final ProjectSettingsState projectSettingsState;
 
     public ApplicationInsightsSession(
             @NotNull TelemetryFactory telemetryFactory,
@@ -51,7 +54,10 @@ public class ApplicationInsightsSession {
         this.visibleTelemetryTypes.add(TelemetryType.RemoteDependency);
         this.visibleTelemetryTypes.add(TelemetryType.Unk);
 
+        projectSettingsState = ProjectSettingsState.getInstance(dotNetDebugProcess.getProject());
+
         this.sortByDuration = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn");
+        this.caseInsensitiveSearch = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.caseInsensitive");
     }
 
     public void startListeningToOutputDebugMessage() {
@@ -82,6 +88,7 @@ public class ApplicationInsightsSession {
 
     public void updateFilter(@NonNull String filter) {
         this.filter = filter;
+        this.filterLowerCase = filter.toLowerCase(Locale.ROOT);
         updateFilteredTelemetries();
     }
 
@@ -139,11 +146,36 @@ public class ApplicationInsightsSession {
     }
 
     private boolean isTelemetryVisible(@NotNull Telemetry telemetry) {
-        return visibleTelemetryTypes.contains(telemetry.getType()) && (filter.equals("") || telemetry.getJson().contains(filter));
+        if (!visibleTelemetryTypes.contains(telemetry.getType()))
+            return false;
+
+        for (String filteredLog : projectSettingsState.filteredLogs) {
+            if (projectSettingsState.caseInsensitiveFiltering) {
+                if (telemetry.getLowerCaseJson().contains(filteredLog.toLowerCase()))
+                    return false;
+            } else {
+                if (telemetry.getJson().contains(filteredLog))
+                    return false;
+            }
+        }
+
+        if (!filter.isEmpty()) {
+            if (caseInsensitiveSearch)
+                return telemetry.getLowerCaseJson().toLowerCase().contains(filterLowerCase);
+            else
+                return telemetry.getJson().contains(filter);
+        }
+
+        return true;
     }
 
     public void toggleSortByDuration(boolean sortByDuration) {
         this.sortByDuration = sortByDuration;
+        this.updateFilteredTelemetries();
+    }
+
+    public void toggleCaseSensitiveSearch(boolean caseInsensitiveSearch) {
+        this.caseInsensitiveSearch = caseInsensitiveSearch;
         this.updateFilteredTelemetries();
     }
 }

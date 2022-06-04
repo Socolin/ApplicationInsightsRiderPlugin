@@ -449,12 +449,18 @@ public class AppInsightsToolWindow {
             this.telemetryRender.setShowFilteredIndicator(selected);
             this.appInsightsLogsTable.invalidate();
             this.appInsightsLogsTable.repaint();
+            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.showFilteredIndicator", selected);
         }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator")));
 
         actionGroup.add(new ToggleDurationToolbarAction((selected) -> {
-            if (this.applicationInsightsSession != null)
-                this.applicationInsightsSession.toggleSortByDuration(selected);
+            this.applicationInsightsSession.toggleSortByDuration(selected);
+            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.displayDurationColumn", selected);
         }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn")));
+
+        actionGroup.add(new ToggleCaseInsensitiveSearchToolbarAction((selected) -> {
+            this.applicationInsightsSession.toggleCaseSensitiveSearch(selected);
+            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.caseInsensitive", selected);
+        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.caseInsensitive")));
 
         actionGroup.add(new AbstractToggleUseSoftWrapsAction(SoftWrapAppliancePlaces.PREVIEW, false) {
             {

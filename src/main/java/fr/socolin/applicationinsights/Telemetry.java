@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 public class Telemetry {
@@ -19,6 +20,8 @@ public class Telemetry {
     private final TelemetryType type;
     @NotNull
     private final String json;
+    @Nullable
+    private String lowerCaseJson;
     @NotNull
     private final JsonObject jsonObject;
     @NotNull
@@ -66,6 +69,13 @@ public class Telemetry {
     @NotNull
     public String getJson() {
         return json;
+    }
+
+    @NotNull
+    public String getLowerCaseJson() {
+        if (lowerCaseJson == null)
+            lowerCaseJson = json.toLowerCase(Locale.ROOT);
+        return lowerCaseJson;
     }
 
     public <T extends ITelemetryData> T getData(Class<T> clazz) {

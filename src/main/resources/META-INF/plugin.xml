@@ -25,6 +25,13 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <projectService serviceImplementation="fr.socolin.applicationinsights.settings.ProjectSettingsState"/>
+        <projectConfigurable
+                parentId="tools"
+                instance="fr.socolin.applicationinsights.settings.ProjectSettingsConfigurable"
+                id="fr.socolin.applicationinsights.settings.ProjectSettingsConfigurable"
+                displayName="Application Insights: Settings"
+                nonDefaultProject="true"/>
     </extensions>
 
     <actions>
