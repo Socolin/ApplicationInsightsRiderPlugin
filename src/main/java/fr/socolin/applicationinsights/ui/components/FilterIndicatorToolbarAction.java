@@ -4,18 +4,14 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import fr.socolin.applicationinsights.ApplicationInsightsBundle;
+import fr.socolin.applicationinsights.settings.AppSettingState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
 public class FilterIndicatorToolbarAction extends ToggleAction {
-    private boolean state;
-    private Consumer<Boolean> onSelect;
-
-    public FilterIndicatorToolbarAction(Consumer<Boolean> onSelect, boolean selected) {
+    public FilterIndicatorToolbarAction() {
         super();
-        this.onSelect = onSelect;
-        state = selected;
 
         String message = ApplicationInsightsBundle.message("action.ApplicationInsights.ToggleFilteredIndicator.text");
         this.getTemplatePresentation().setDescription(message);
@@ -25,11 +21,10 @@ public class FilterIndicatorToolbarAction extends ToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent actionEvent) {
-        return state;
+        return AppSettingState.getInstance().showFilteredIndicator.getValue();
     }
 
     public void setSelected(@NotNull AnActionEvent actionEvent, boolean state) {
-        this.state = state;
-        this.onSelect.accept(state);
+        AppSettingState.getInstance().showFilteredIndicator.setValue(state);
     }
 }

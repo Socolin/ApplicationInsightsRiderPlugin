@@ -29,15 +29,18 @@ import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.unscramble.AnalyzeStacktraceUtil;
 import com.intellij.util.ui.JBUI;
+import com.jetbrains.rd.util.lifetime.Lifetime;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.TelemetryType;
 import fr.socolin.applicationinsights.metricdata.*;
+import fr.socolin.applicationinsights.settings.AppSettingState;
 import fr.socolin.applicationinsights.ui.components.*;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryDateRender;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryRender;
 import fr.socolin.applicationinsights.ui.renderers.TelemetryTypeRender;
 import fr.socolin.applicationinsights.utils.TimeSpan;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,11 +109,12 @@ public class AppInsightsToolWindow {
     @NotNull
     private final Project project;
     @NotNull
-    private final TelemetryRender telemetryRender = new TelemetryRender();
+    private final TelemetryRender telemetryRender;
     @NotNull
     private final Map<TelemetryType, Integer> telemetryCountPerType = new HashMap<>();
     @NotNull
     private final ApplicationInsightsSession applicationInsightsSession;
+    private Lifetime lifetime;
 
     @NotNull
     private Editor editor;
@@ -126,10 +130,11 @@ public class AppInsightsToolWindow {
 
     public AppInsightsToolWindow(
             @NotNull ApplicationInsightsSession applicationInsightsSession,
-            @NotNull Project project
-    ) {
+            @NotNull Project project,
+            Lifetime lifetime) {
         this.project = project;
         this.applicationInsightsSession = applicationInsightsSession;
+        this.lifetime = lifetime;
 
         initTelemetryTypeFilters();
 
@@ -138,6 +143,7 @@ public class AppInsightsToolWindow {
 
         CodeFoldingManager.getInstance(ProjectManager.getInstance().getDefaultProject()).buildInitialFoldings(jsonPreviewDocument);
 
+        this.telemetryRender = new TelemetryRender(lifetime);
         appInsightsLogsTable.setDefaultRenderer(Telemetry.class, telemetryRender);
         appInsightsLogsTable.setDefaultRenderer(TelemetryType.class, new TelemetryTypeRender());
         appInsightsLogsTable.setDefaultRenderer(Date.class, new TelemetryDateRender());
@@ -175,6 +181,12 @@ public class AppInsightsToolWindow {
 
         builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
         builder.filters(AnalyzeStacktraceUtil.EP_NAME.getExtensions(project));
+
+        AppSettingState.getInstance().showFilteredIndicator.advise(lifetime, (v) -> {
+            this.appInsightsLogsTable.invalidate();
+            this.appInsightsLogsTable.repaint();
+            return Unit.INSTANCE;
+        });
     }
 
     private void selectTelemetry(@Nullable Telemetry telemetry) {
@@ -435,6 +447,9 @@ public class AppInsightsToolWindow {
     private ActionToolbarImpl createToolbar() {
         final DefaultActionGroup actionGroup = new DefaultActionGroup();
 
+        actionGroup.add(new OptionsToolbarAction(() -> toolbar));
+        actionGroup.addSeparator();
+
         autoScrollToTheEnd = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.autoScrollToTheEnd");
 
         actionGroup.add(new AutoScrollToTheEndToolbarAction((selected) -> {
@@ -445,22 +460,7 @@ public class AppInsightsToolWindow {
             }
         }, autoScrollToTheEnd));
 
-        actionGroup.add(new FilterIndicatorToolbarAction((selected) -> {
-            this.telemetryRender.setShowFilteredIndicator(selected);
-            this.appInsightsLogsTable.invalidate();
-            this.appInsightsLogsTable.repaint();
-            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.showFilteredIndicator", selected);
-        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator")));
-
-        actionGroup.add(new ToggleDurationToolbarAction((selected) -> {
-            this.applicationInsightsSession.toggleSortByDuration(selected);
-            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.displayDurationColumn", selected);
-        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn")));
-
-        actionGroup.add(new ToggleCaseInsensitiveSearchToolbarAction((selected) -> {
-            this.applicationInsightsSession.toggleCaseSensitiveSearch(selected);
-            PropertiesComponent.getInstance().setValue("fr.socolin.application-insights.caseInsensitive", selected);
-        }, PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.caseInsensitive")));
+        actionGroup.add(new ToggleCaseInsensitiveSearchToolbarAction());
 
         actionGroup.add(new AbstractToggleUseSoftWrapsAction(SoftWrapAppliancePlaces.PREVIEW, false) {
             {

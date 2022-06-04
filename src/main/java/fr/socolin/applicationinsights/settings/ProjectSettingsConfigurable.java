@@ -1,25 +1,24 @@
 package fr.socolin.applicationinsights.settings;
 
 import com.intellij.openapi.options.Configurable;
+import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Arrays;
 
-public class ProjectSettingsConfigurable implements Configurable {
+public class ProjectSettingsConfigurable implements SearchableConfigurable {
     private final Project project;
 
     public ProjectSettingsConfigurable(Project project) {
-
         this.project = project;
     }
 
     private ProjectSettingsComponent mySettingsComponent;
-
-    // A default constructor with no arguments is required because this implementation
-    // is registered as an applicationConfigurable EP
 
     @Nls(capitalization = Nls.Capitalization.Title)
     @Override
@@ -42,28 +41,33 @@ public class ProjectSettingsConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance(project);
-        boolean modified = mySettingsComponent.getCaseInsensitiveFiltering() != settings.caseInsensitiveFiltering;
-        modified |= !Arrays.equals(mySettingsComponent.getFilteredLogs(), settings.filteredLogs);
-        // modified |= mySettingsComponent.getIdeaUserStatus() != settings.ideaStatus;
+        boolean modified = mySettingsComponent.getCaseInsensitiveFiltering() != settings.caseInsensitiveFiltering.getValue();
+        modified |= !Arrays.equals(mySettingsComponent.getFilteredLogs(), settings.filteredLogs.getValue());
         return modified;
     }
 
     @Override
     public void apply() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance(project);
-        settings.caseInsensitiveFiltering = mySettingsComponent.getCaseInsensitiveFiltering();
-        settings.filteredLogs = mySettingsComponent.getFilteredLogs();
+        settings.caseInsensitiveFiltering.setValue(mySettingsComponent.getCaseInsensitiveFiltering());
+        settings.filteredLogs.setValue(mySettingsComponent.getFilteredLogs());
     }
 
     @Override
     public void reset() {
         ProjectSettingsState settings = ProjectSettingsState.getInstance(project);
-        mySettingsComponent.setCaseInsensitiveFiltering(settings.caseInsensitiveFiltering);
-        mySettingsComponent.setFilteredLogs(settings.filteredLogs);
+        mySettingsComponent.setCaseInsensitiveFiltering(settings.caseInsensitiveFiltering.getValue());
+        mySettingsComponent.setFilteredLogs(settings.filteredLogs.getValue());
     }
 
     @Override
     public void disposeUIResources() {
         mySettingsComponent = null;
+    }
+
+    @Override
+    public @NotNull
+    @NonNls String getId() {
+        return "fr.socolin.applicationinsights.settings.ProjectSettingsConfigurable";
     }
 }

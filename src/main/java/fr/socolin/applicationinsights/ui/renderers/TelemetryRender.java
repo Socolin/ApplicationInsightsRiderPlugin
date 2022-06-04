@@ -2,8 +2,11 @@ package fr.socolin.applicationinsights.ui.renderers;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ui.JBColor;
+import com.jetbrains.rd.util.lifetime.Lifetime;
 import fr.socolin.applicationinsights.Telemetry;
 import fr.socolin.applicationinsights.metricdata.*;
+import fr.socolin.applicationinsights.settings.AppSettingState;
+import kotlin.Unit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +14,11 @@ import java.awt.*;
 public class TelemetryRender extends TelemetryRenderBase {
     private boolean showFilteredIndicator;
 
-    public TelemetryRender() {
-        showFilteredIndicator = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.showFilteredIndicator");
+    public TelemetryRender(Lifetime lifetime) {
+        AppSettingState.getInstance().showFilteredIndicator.advise(lifetime, v -> {
+            showFilteredIndicator = v;
+            return Unit.INSTANCE;
+        });
     }
 
     @Override
@@ -119,7 +125,6 @@ public class TelemetryRender extends TelemetryRenderBase {
 
         return this;
     }
-
     private void colorComponentDependingOnSeverityLevel(String severityLevel, boolean isSelected) {
         if ("Error".equals(severityLevel)) {
             super.setForeground(JBColor.namedColor("ApplicationInsights.SeverityLevel.Error", JBColor.red));

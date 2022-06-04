@@ -1,10 +1,11 @@
 package fr.socolin.applicationinsights;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.content.Content;
-import com.jetbrains.rd.util.lifetime.LifetimeDefinition;
+import com.jetbrains.rd.util.lifetime.Lifetime;
 import com.jetbrains.rider.debugger.DotNetDebugProcess;
+import fr.socolin.applicationinsights.settings.AppSettingState;
+import fr.socolin.applicationinsights.settings.FilterTelemetryMode;
 import fr.socolin.applicationinsights.settings.ProjectSettingsState;
 import fr.socolin.applicationinsights.ui.AppInsightsToolWindow;
 import kotlin.Unit;
@@ -30,14 +31,13 @@ public class ApplicationInsightsSession {
     private final List<Telemetry> filteredTelemetries = new ArrayList<>();
     @NotNull
     private final Set<TelemetryType> visibleTelemetryTypes = new HashSet<>();
-    private boolean caseInsensitiveSearch;
+    private final Lifetime lifetime;
     @NotNull
     private String filter = "";
     private String filterLowerCase = "";
     @Nullable
     private AppInsightsToolWindow appInsightsToolWindow;
     private boolean firstMessage = true;
-    private boolean sortByDuration;
     private final ProjectSettingsState projectSettingsState;
 
     public ApplicationInsightsSession(
@@ -46,6 +46,7 @@ public class ApplicationInsightsSession {
     ) {
         this.telemetryFactory = telemetryFactory;
         this.dotNetDebugProcess = dotNetDebugProcess;
+        this.lifetime = dotNetDebugProcess.getSessionLifetime();
 
         this.visibleTelemetryTypes.add(TelemetryType.Message);
         this.visibleTelemetryTypes.add(TelemetryType.Request);
@@ -56,12 +57,26 @@ public class ApplicationInsightsSession {
 
         projectSettingsState = ProjectSettingsState.getInstance(dotNetDebugProcess.getProject());
 
-        this.sortByDuration = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.displayDurationColumn");
-        this.caseInsensitiveSearch = PropertiesComponent.getInstance().getBoolean("fr.socolin.application-insights.caseInsensitive");
+        AppSettingState.getInstance().filterTelemetryMode.advise(lifetime, (v) -> {
+            this.updateFilteredTelemetries();
+            return Unit.INSTANCE;
+        });
+        AppSettingState.getInstance().caseInsensitiveSearch.advise(lifetime, (v) -> {
+            this.updateFilteredTelemetries();
+            return Unit.INSTANCE;
+        });
+        projectSettingsState.filteredLogs.advise(lifetime, (v) -> {
+            this.updateFilteredTelemetries();
+            return Unit.INSTANCE;
+        });
+        projectSettingsState.caseInsensitiveFiltering.advise(lifetime, (v) -> {
+            this.updateFilteredTelemetries();
+            return Unit.INSTANCE;
+        });
     }
 
     public void startListeningToOutputDebugMessage() {
-        dotNetDebugProcess.getSessionProxy().getTargetDebug().advise(new LifetimeDefinition(), outputMessageWithSubject -> {
+        dotNetDebugProcess.getSessionProxy().getTargetDebug().advise(lifetime, outputMessageWithSubject -> {
             Telemetry telemetry = telemetryFactory.tryCreateFromDebugOutputLog(outputMessageWithSubject.getOutput());
             if (telemetry != null) {
                 addTelemetry(telemetry);
@@ -101,7 +116,7 @@ public class ApplicationInsightsSession {
         if (firstMessage) {
             firstMessage = false;
 
-            appInsightsToolWindow = new AppInsightsToolWindow(this, dotNetDebugProcess.getProject());
+            appInsightsToolWindow = new AppInsightsToolWindow(this, dotNetDebugProcess.getProject(), lifetime);
 
             Content content = dotNetDebugProcess.getSession().getUI().createContent(
                     "appinsights",
@@ -118,27 +133,43 @@ public class ApplicationInsightsSession {
         synchronized (telemetries) {
             telemetries.add(telemetry);
             if (isTelemetryVisible(telemetry)) {
-                if (sortByDuration) {
-                    index = Collections.binarySearch(filteredTelemetries, telemetry, Comparator.comparing(Telemetry::getDuration));
-                    if (index < 0) index = ~index;
-                    filteredTelemetries.add(index, telemetry);
-                } else
-                    filteredTelemetries.add(telemetry);
+                FilterTelemetryMode value = AppSettingState.getInstance().filterTelemetryMode.getValue();
+                switch (value) {
+                    case TIMESTAMP:
+                        index = Collections.binarySearch(filteredTelemetries, telemetry, Comparator.comparing(Telemetry::getTimestamp));
+                        if (index < 0)
+                            index = ~index;
+                        filteredTelemetries.add(index, telemetry);
+                        break;
+                    case DURATION:
+                        index = Collections.binarySearch(filteredTelemetries, telemetry, Comparator.comparing(Telemetry::getDuration));
+                        if (index < 0)
+                            index = ~index;
+                        filteredTelemetries.add(index, telemetry);
+                        break;
+                    default:
+                        filteredTelemetries.add(telemetry);
+                        break;
+                }
                 visible = true;
             }
         }
         if (appInsightsToolWindow != null)
-            appInsightsToolWindow.addTelemetry(index, telemetry, visible, !sortByDuration);
+            appInsightsToolWindow.addTelemetry(index, telemetry, visible, AppSettingState.getInstance().filterTelemetryMode.getValue() == FilterTelemetryMode.DEFAULT);
     }
 
     private void updateFilteredTelemetries() {
         synchronized (telemetries) {
             filteredTelemetries.clear();
-            Stream<Telemetry> stream = telemetries.stream()
-                    .filter(this::isTelemetryVisible);
-            if (sortByDuration)
-                stream = stream.sorted(Comparator.comparing(Telemetry::getDuration));
-
+            Stream<Telemetry> stream = telemetries.stream().filter(this::isTelemetryVisible);
+            switch (AppSettingState.getInstance().filterTelemetryMode.getValue()) {
+                case DURATION:
+                    stream = stream.sorted(Comparator.comparing(Telemetry::getDuration));
+                    break;
+                case TIMESTAMP:
+                    stream = stream.sorted(Comparator.comparing(Telemetry::getTimestamp));
+                    break;
+            }
             filteredTelemetries.addAll(stream.collect(Collectors.toList()));
         }
         if (appInsightsToolWindow != null)
@@ -149,8 +180,8 @@ public class ApplicationInsightsSession {
         if (!visibleTelemetryTypes.contains(telemetry.getType()))
             return false;
 
-        for (String filteredLog : projectSettingsState.filteredLogs) {
-            if (projectSettingsState.caseInsensitiveFiltering) {
+        for (String filteredLog : projectSettingsState.filteredLogs.getValue()) {
+            if (projectSettingsState.caseInsensitiveFiltering.getValue()) {
                 if (telemetry.getLowerCaseJson().contains(filteredLog.toLowerCase()))
                     return false;
             } else {
@@ -160,22 +191,12 @@ public class ApplicationInsightsSession {
         }
 
         if (!filter.isEmpty()) {
-            if (caseInsensitiveSearch)
+            if (AppSettingState.getInstance().caseInsensitiveSearch.getValue())
                 return telemetry.getLowerCaseJson().toLowerCase().contains(filterLowerCase);
             else
                 return telemetry.getJson().contains(filter);
         }
 
         return true;
-    }
-
-    public void toggleSortByDuration(boolean sortByDuration) {
-        this.sortByDuration = sortByDuration;
-        this.updateFilteredTelemetries();
-    }
-
-    public void toggleCaseSensitiveSearch(boolean caseInsensitiveSearch) {
-        this.caseInsensitiveSearch = caseInsensitiveSearch;
-        this.updateFilteredTelemetries();
     }
 }
