@@ -26,7 +26,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
-import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.unscramble.AnalyzeStacktraceUtil;
 import com.intellij.util.ui.JBUI;
 import com.jetbrains.rd.util.lifetime.Lifetime;
@@ -96,7 +96,7 @@ public class AppInsightsToolWindow {
     @NotNull
     private ColorBox eventColorBox;
     @NotNull
-    private JBTextField filter;
+    private ExtendableTextField filter;
     @NotNull
     private JScrollPane logsScrollPane;
     @NotNull
@@ -158,6 +158,8 @@ public class AppInsightsToolWindow {
         appInsightsLogsTable.getColumnModel().getColumn(2).setPreferredWidth(100);
         appInsightsLogsTable.getColumnModel().getColumn(2).setMaxWidth(100);
         appInsightsLogsTable.getTableHeader().setUI(null);
+
+        filter.setExtensions(new ClearTextFieldExtension(filter));
 
         filter.addKeyListener(new KeyListener() {
             @Override
@@ -489,4 +491,6 @@ public class AppInsightsToolWindow {
 
         return new ActionToolbarImpl("ApplicationInsights", actionGroup, false);
     }
+
 }
+
