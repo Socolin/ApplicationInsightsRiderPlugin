@@ -2,8 +2,11 @@ package fr.socolin.applicationinsights.ui.components;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.project.Project;
 import fr.socolin.applicationinsights.ApplicationInsightsBundle;
 import fr.socolin.applicationinsights.settings.FilterTelemetryMode;
+import fr.socolin.applicationinsights.settings.ProjectSettingsConfigurable;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -30,16 +33,11 @@ public class OptionsToolbarAction extends AnAction {
         actionGroup.add(new ChangeFilterModeToolbarAction(FilterTelemetryMode.DEFAULT));
         actionGroup.add(new ChangeFilterModeToolbarAction(FilterTelemetryMode.DURATION));
         actionGroup.add(new ChangeFilterModeToolbarAction(FilterTelemetryMode.TIMESTAMP));
+        actionGroup.add(new Separator());
+        actionGroup.add(new OpenSettingsToolbarAction());
 
         ActionManager.getInstance().createActionPopupMenu(ActionPlaces.UNKNOWN, actionGroup)
                 .getComponent()
                 .show(toolbarComponent.get(), 15, 15);
-
-        /*
-        Project project = e.getData(CommonDataKeys.PROJECT);
-        if (project != null)
-            ProjectSettingsService.getInstance(project).openProjectSettings();
-*/
-
     }
 }
