@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'fr.socolin'
-version '1.5.0'
+version '1.5.1'
 
 sourceCompatibility = 1.11
 
