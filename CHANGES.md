@@ -1,3 +1,7 @@
+### 1.6.0
+
+* Support Rider 2022.2
+
 ### 1.5.0
 
 * Add button to clear filter
