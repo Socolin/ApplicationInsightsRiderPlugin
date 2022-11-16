@@ -1,12 +1,10 @@
 plugins {
     id 'java'
-    id "org.jetbrains.intellij" version "1.7.0"
+    id "org.jetbrains.intellij" version "1.10.0-SNAPSHOT"
 }
 
 group 'fr.socolin'
-version '1.6.0'
-
-sourceCompatibility = 1.11
+version '1.7.0'
 
 repositories {
     mavenCentral()
@@ -16,7 +14,12 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10'
+}
+
+java {
+    targetCompatibility = "17"
+    sourceCompatibility = "17"
 }
 
 publishPlugin {

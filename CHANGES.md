@@ -1,3 +1,7 @@
+### 1.7.0
+
+* Support Rider 2022.3-eap
+
 ### 1.6.0
 
 * Support Rider 2022.2
