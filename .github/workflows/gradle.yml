@@ -23,10 +23,11 @@ jobs:
         java-version: 17
     - name: Build stable version
       run: gradle buildPlugin -PintellijPublishToken=unk
+    - name: Unpack Distribution
+      shell: pwsh
+      run: scripts/Unpack-Distribution.ps1
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        # Artifact name
-        name: ApplicationInsightsDebugLogViewer
-        # Directory containing files to upload
-        path: build/distributions/
+        name: SpecFlowPlugin
+        path: build/distributions/unpacked
