@@ -1,9 +1,11 @@
 # Application Insights Debug Log Viewer
 
-This is a plugin for [Rider](https://www.jetbrains.com/rider/) to see, instantly, nicely [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview) logs.
+<!-- Plugin description -->
+This plugin allow you to see, instantly, in a nice way [Application Insights](https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview)
 
-To use just start a program with the debugger or attach to a running one that use Application Insights.
-The logs will appear in a tab, in the debugger panel when starting a debug session.
+To use just start a debug session with a program using Application Insights.
+The logs will appear in a new tab in the debugger session.
+<!-- Plugin description end -->
 
 ### Dev
 
