@@ -1,5 +1,9 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [1.7.2] - 2022-12-07
+
+* Support Rider 2022.3-SNAPSHOT
+
 ## [1.7.1] - 2022-11-27
 
 * Support Rider 2022.3-eap7
