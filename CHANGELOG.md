@@ -1,5 +1,9 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [1.8.0] - 2023-02-27
+
+* Support Rider 2023.1-eap4
+
 ## [1.7.3] - 2023-01-03
 
 * Support Rider 2022.3.1
