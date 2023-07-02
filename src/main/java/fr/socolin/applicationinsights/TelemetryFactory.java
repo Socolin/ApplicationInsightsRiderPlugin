@@ -14,7 +14,6 @@ import java.util.Map;
 public class TelemetryFactory {
     @NotNull
     private final Gson gson;
-    private final JsonParser jsonParser = new JsonParser();
 
     public TelemetryFactory() {
         gson = new Gson();
@@ -22,37 +21,22 @@ public class TelemetryFactory {
 
     @NotNull
     public Telemetry fromJson(@NotNull String json) {
-        JsonObject jsonObject = jsonParser.parse(json).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
         String name = jsonObject.get("name").getAsString();
         TelemetryType type = TelemetryType.fromType(name);
 
         JsonObject data = jsonObject.getAsJsonObject("data").getAsJsonObject("baseData");
 
-        ITelemetryData telemetryData;
-        switch (type) {
-            case Message:
-                telemetryData = gson.fromJson(data, MessageData.class);
-                break;
-            case Request:
-                telemetryData = gson.fromJson(data, RequestData.class);
-                break;
-            case Exception:
-                telemetryData = gson.fromJson(data, ExceptionData.class);
-                break;
-            case Metric:
-                telemetryData = gson.fromJson(data, MetricData.class);
-                break;
-            case RemoteDependency:
-                telemetryData = gson.fromJson(data, RemoteDependencyData.class);
-                break;
-            case Event:
-                telemetryData = gson.fromJson(data, EventData.class);
-                break;
-            default:
-                telemetryData = gson.fromJson(data, UnkData.class);
-                break;
-        }
+        ITelemetryData telemetryData = switch (type) {
+            case Message -> gson.fromJson(data, MessageData.class);
+            case Request -> gson.fromJson(data, RequestData.class);
+            case Exception -> gson.fromJson(data, ExceptionData.class);
+            case Metric -> gson.fromJson(data, MetricData.class);
+            case RemoteDependency -> gson.fromJson(data, RemoteDependencyData.class);
+            case Event -> gson.fromJson(data, EventData.class);
+            default -> gson.fromJson(data, UnkData.class);
+        };
 
         Type tagsMapType = new TypeToken<Map<String, String>>() {}.getType();
 

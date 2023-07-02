@@ -5,8 +5,10 @@ import com.intellij.ui.RelativeFont;
 import com.intellij.ui.TextIcon;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.ui.components.fields.ExtendableTextField;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.event.InputEvent;
 
 public class ClearTextFieldExtension implements ExtendableTextComponent.Extension {
     private final ExtendableTextField textField;
@@ -18,9 +20,6 @@ public class ClearTextFieldExtension implements ExtendableTextComponent.Extensio
 
     @Override
     public Icon getIcon(boolean hovered) {
-        if (null == getActionOnClick()) {
-            return null;
-        }
         return hovered ? AllIcons.Actions.CloseHovered : AllIcons.Actions.Close;
     }
 
@@ -30,7 +29,7 @@ public class ClearTextFieldExtension implements ExtendableTextComponent.Extensio
     }
 
     @Override
-    public Runnable getActionOnClick() {
+    public Runnable getActionOnClick(@NotNull InputEvent inputEvent) {
         return textField.getText().isEmpty() ? null : () -> textField.setText(null);
     }
 }
