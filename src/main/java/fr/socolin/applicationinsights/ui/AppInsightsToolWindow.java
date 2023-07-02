@@ -14,6 +14,8 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -28,6 +30,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.unscramble.AnalyzeStacktraceUtil;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.JBUI;
 import com.jetbrains.rd.util.lifetime.Lifetime;
 import fr.socolin.applicationinsights.ApplicationInsightsSession;
@@ -51,6 +54,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class AppInsightsToolWindow {
     @NotNull
@@ -140,8 +144,15 @@ public class AppInsightsToolWindow {
 
         splitPane.setDividerLocation(0.5);
         splitPane.setResizeWeight(0.5);
-
-        CodeFoldingManager.getInstance(ProjectManager.getInstance().getDefaultProject()).buildInitialFoldings(jsonPreviewDocument);
+        try {
+            ReadAction.nonBlocking(() -> {
+                return CodeFoldingManager.getInstance(ProjectManager.getInstance().getDefaultProject()).buildInitialFoldings(jsonPreviewDocument);
+            }).submit(AppExecutorUtil.getAppExecutorService()).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
         this.telemetryRender = new TelemetryRender(lifetime);
         appInsightsLogsTable.setDefaultRenderer(Telemetry.class, telemetryRender);
@@ -430,6 +441,7 @@ public class AppInsightsToolWindow {
         eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
 
         toolbar = createToolbar();
+        toolbar.setTargetComponent(mainPanel);
 
         jsonPreviewDocument = new LanguageTextField.SimpleDocumentCreator().createDocument("", JsonLanguage.INSTANCE, project);
         editor = EditorFactory.getInstance().createViewer(jsonPreviewDocument, project, EditorKind.MAIN_EDITOR);

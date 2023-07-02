@@ -36,7 +36,7 @@ public class OptionsToolbarAction extends AnAction {
         actionGroup.add(new Separator());
         actionGroup.add(new OpenSettingsToolbarAction());
 
-        ActionManager.getInstance().createActionPopupMenu(ActionPlaces.UNKNOWN, actionGroup)
+        ActionManager.getInstance().createActionPopupMenu("AIDLV_OpenSettingsMenu", actionGroup)
                 .getComponent()
                 .show(toolbarComponent.get(), 15, 15);
     }
