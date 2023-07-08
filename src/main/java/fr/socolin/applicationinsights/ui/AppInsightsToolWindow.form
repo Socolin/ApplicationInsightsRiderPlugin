@@ -36,7 +36,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="36535" class="javax.swing.JTable" binding="appInsightsLogsTable" default-binding="true">
+                  <component id="36535" class="com.intellij.ui.table.JBTable" binding="appInsightsLogsTable" default-binding="true">
                     <constraints/>
                     <properties/>
                   </component>

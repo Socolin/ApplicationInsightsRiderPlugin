@@ -29,6 +29,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.components.fields.ExtendableTextField;
+import com.intellij.ui.table.JBTable;
 import com.intellij.unscramble.AnalyzeStacktraceUtil;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.JBUI;
@@ -60,7 +61,7 @@ public class AppInsightsToolWindow {
     @NotNull
     private JPanel mainPanel;
     @NotNull
-    private JTable appInsightsLogsTable;
+    private JBTable appInsightsLogsTable;
     @NotNull
     private JCheckBox metricCheckBox;
     @NotNull
