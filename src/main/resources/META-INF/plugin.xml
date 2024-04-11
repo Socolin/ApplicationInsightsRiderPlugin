@@ -20,6 +20,10 @@
                 id="fr.socolin.applicationinsights.settings.ProjectSettingsConfigurable"
                 displayName="Application Insights: Settings"
                 nonDefaultProject="true"/>
+
+        <dependencySupport kind="dotnet" coordinate="Microsoft.ApplicationInsights" displayName="Application Insights Debug Log Viewer"/>
+        <dependencySupport kind="dotnet" coordinate="Microsoft.ApplicationInsights.AspNetCore" displayName="Application Insights Debug Log Viewer"/>
+        <dependencySupport kind="dotnet" coordinate="Microsoft.Extensions.Logging.ApplicationInsights" displayName="Application Insights Debug Log Viewer"/>
     </extensions>
 
     <actions>
