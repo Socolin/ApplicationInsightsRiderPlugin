@@ -1,5 +1,9 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [2024.1.2] - 2024-03-22
+
+* Add declaration to get suggestion when AI related nuget package is installed
+
 ## [2024.1.0] - 2024-03-22
 
 * Support Rider 2024.1-eap9
