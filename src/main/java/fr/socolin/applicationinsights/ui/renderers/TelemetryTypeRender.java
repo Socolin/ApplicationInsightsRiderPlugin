@@ -32,6 +32,9 @@ public class TelemetryTypeRender extends TelemetryRenderBase {
             case Event:
                 super.setForeground(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
                 break;
+            case PageView:
+                super.setForeground(JBColor.namedColor("ApplicationInsights.TelemetryColor.PageView", JBColor.yellow));
+                break;
             case RemoteDependency:
                 super.setText("Dependency");
                 super.setForeground(JBColor.namedColor("ApplicationInsights.TelemetryColor.RemoteDependency", JBColor.blue));

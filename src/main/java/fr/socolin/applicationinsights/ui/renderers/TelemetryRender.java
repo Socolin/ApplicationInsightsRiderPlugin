@@ -112,6 +112,11 @@ public class TelemetryRender extends TelemetryRenderBase {
                 text = eventData.name;
                 break;
             }
+            case PageView: {
+                PageViewData pageViewData = telemetry.getData(PageViewData.class);
+                text = pageViewData.name;
+                break;
+            }
             default:
                 text = telemetry.toString();
                 break;

@@ -1,5 +1,10 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [2024.2.0] - 2024-07-26
+
+* Support Rider 2024.2-eap8
+* Add support for PageView telemetry
+
 ## [2024.1.2] - 2024-03-22
 
 * Add declaration to get suggestion when AI related nuget package is installed

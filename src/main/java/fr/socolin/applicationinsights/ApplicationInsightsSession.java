@@ -53,6 +53,7 @@ public class ApplicationInsightsSession {
         this.visibleTelemetryTypes.add(TelemetryType.Event);
         this.visibleTelemetryTypes.add(TelemetryType.RemoteDependency);
         this.visibleTelemetryTypes.add(TelemetryType.Unk);
+        this.visibleTelemetryTypes.add(TelemetryType.PageView);
 
         projectSettingsState = ProjectSettingsState.getInstance(dotNetDebugProcess.getProject());
 

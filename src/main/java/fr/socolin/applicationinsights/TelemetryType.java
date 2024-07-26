@@ -7,6 +7,7 @@ public enum TelemetryType {
     Message("Message", "AppTraces"),
     Request("Request", "AppRequests"),
     Exception("Exception", "AppExceptions"),
+    PageView("PageViews", "AppPageViews"),
     Metric("Metric", "AppMetrics"),
     Event("Event", "AppEvents"),
     RemoteDependency("RemoteDependency", "AppDependencies"),

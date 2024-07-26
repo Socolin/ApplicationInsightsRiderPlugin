@@ -9,13 +9,11 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -76,6 +74,8 @@ public class AppInsightsToolWindow {
     @NotNull
     private JCheckBox eventCheckBox;
     @NotNull
+    private JCheckBox pageViewCheckBox;
+    @NotNull
     private JSplitPane splitPane;
     @NotNull
     private JLabel metricCounter;
@@ -90,6 +90,8 @@ public class AppInsightsToolWindow {
     @NotNull
     private JLabel eventCounter;
     @NotNull
+    private JLabel pageViewCounter;
+    @NotNull
     private ColorBox metricColorBox;
     @NotNull
     private ColorBox exceptionColorBox;
@@ -101,6 +103,8 @@ public class AppInsightsToolWindow {
     private ColorBox requestColorBox;
     @NotNull
     private ColorBox eventColorBox;
+    @NotNull
+    private ColorBox pageViewColorBox;
     @NotNull
     private ExtendableTextField filter;
     @NotNull
@@ -263,6 +267,17 @@ public class AppInsightsToolWindow {
             formattedTelemetryInfo.add(new JLabel("ResultCode: " + remoteDependencyData.resultCode), createConstraint(0, column++, 30));
             formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(remoteDependencyData.duration).toString()), createConstraint(0, column++, 30));
         }
+        if (telemetry.getType() == TelemetryType.Event) {
+            formattedTelemetryInfo.add(createTitleLabel("Event"), createConstraint(0, column++, 0));
+            EventData eventData = telemetry.getData(EventData.class);
+            formattedTelemetryInfo.add(new JLabel("Name: " + eventData.name), createConstraint(0, column++, 30));
+        }
+        if (telemetry.getType() == TelemetryType.PageView) {
+            formattedTelemetryInfo.add(createTitleLabel("PageView"), createConstraint(0, column++, 0));
+            PageViewData pageViewData = telemetry.getData(PageViewData.class);
+            formattedTelemetryInfo.add(new JLabel("Name: " + pageViewData.name), createConstraint(0, column++, 30));
+            formattedTelemetryInfo.add(new JLabel("Duration: " + new TimeSpan(pageViewData.duration).toString()), createConstraint(0, column++, 30));
+        }
         if (telemetry.getType() == TelemetryType.Exception) {
             formattedTelemetryInfo.add(createTitleLabel("Exception"), createConstraint(0, column++, 0));
             ExceptionData exceptionData = telemetry.getData(ExceptionData.class);
@@ -276,7 +291,7 @@ public class AppInsightsToolWindow {
         }
 
         ITelemetryData telemetryData = telemetry.getData(ITelemetryData.class);
-        if (telemetryData != null && telemetryData.getProperties() != null && telemetryData.getProperties().size() > 0) {
+        if (telemetryData != null && telemetryData.getProperties() != null && !telemetryData.getProperties().isEmpty()) {
             formattedTelemetryInfo.add(createTitleLabel("Properties"), createConstraint(0, column++, 0));
             for (Map.Entry<String, String> entry : telemetryData.getProperties().entrySet()) {
                 JLabel jLabel = new JLabel("<html>" + entry.getKey() + ": " + "<a href=''>" + entry.getValue() + "</a></html>");
@@ -352,8 +367,9 @@ public class AppInsightsToolWindow {
         dependencyCounter.putClientProperty("TelemetryType", TelemetryType.RemoteDependency);
         requestCounter.putClientProperty("TelemetryType", TelemetryType.Request);
         eventCounter.putClientProperty("TelemetryType", TelemetryType.Event);
+        pageViewCounter.putClientProperty("TelemetryType", TelemetryType.PageView);
 
-        telemetryTypesCounter.addAll(Arrays.asList(metricCounter, exceptionCounter, messageCounter, dependencyCounter, requestCounter, eventCounter));
+        telemetryTypesCounter.addAll(Arrays.asList(metricCounter, exceptionCounter, messageCounter, dependencyCounter, requestCounter, eventCounter, pageViewCounter));
 
         metricCheckBox.putClientProperty("TelemetryType", TelemetryType.Metric);
         exceptionCheckBox.putClientProperty("TelemetryType", TelemetryType.Exception);
@@ -361,8 +377,9 @@ public class AppInsightsToolWindow {
         dependencyCheckBox.putClientProperty("TelemetryType", TelemetryType.RemoteDependency);
         requestCheckBox.putClientProperty("TelemetryType", TelemetryType.Request);
         eventCheckBox.putClientProperty("TelemetryType", TelemetryType.Event);
+        pageViewCheckBox.putClientProperty("TelemetryType", TelemetryType.PageView);
 
-        for (JCheckBox checkBox : new JCheckBox[]{metricCheckBox, exceptionCheckBox, messageCheckBox, dependencyCheckBox, requestCheckBox, eventCheckBox}) {
+        for (JCheckBox checkBox : new JCheckBox[]{metricCheckBox, exceptionCheckBox, messageCheckBox, dependencyCheckBox, requestCheckBox, eventCheckBox, pageViewCheckBox}) {
             TelemetryType telemetryType = (TelemetryType) checkBox.getClientProperty("TelemetryType");
             checkBox.setSelected(applicationInsightsSession.isTelemetryVisible(telemetryType));
             checkBox.addItemListener(e -> {
@@ -441,6 +458,7 @@ public class AppInsightsToolWindow {
         dependencyColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.RemoteDependency", JBColor.blue));
         requestColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.Request", JBColor.green));
         eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
+        pageViewColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.PageView", JBColor.yellow));
 
         toolbar = createToolbar();
         toolbar.setTargetComponent(mainPanel);

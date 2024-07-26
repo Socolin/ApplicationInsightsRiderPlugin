@@ -101,7 +101,7 @@
           </tabbedpane>
         </children>
       </splitpane>
-      <grid id="53d4d" layout-manager="GridLayoutManager" row-count="2" column-count="12" same-size-horizontally="false" same-size-vertically="false" hgap="4" vgap="0">
+      <grid id="53d4d" layout-manager="GridLayoutManager" row-count="2" column-count="14" same-size-horizontally="false" same-size-vertically="false" hgap="4" vgap="0">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="5" anchor="9" fill="0" indent="0" use-parent-layout="false"/>
@@ -157,6 +157,14 @@
               <text value="Event"/>
             </properties>
           </component>
+          <component id="c3251" class="javax.swing.JCheckBox" binding="pageViewCheckBox" default-binding="true">
+            <constraints>
+              <grid row="0" column="13" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="PageView"/>
+            </properties>
+          </component>
           <component id="59fe1" class="javax.swing.JLabel" binding="metricCounter">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="5" fill="0" indent="0" use-parent-layout="false"/>
@@ -205,6 +213,14 @@
               <text value="0"/>
             </properties>
           </component>
+          <component id="f4242" class="javax.swing.JLabel" binding="pageViewCounter">
+            <constraints>
+              <grid row="1" column="13" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="0"/>
+            </properties>
+          </component>
           <component id="1b1ae" class="fr.socolin.applicationinsights.ui.components.ColorBox" binding="metricColorBox" custom-create="true">
             <constraints>
               <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -238,6 +254,12 @@
           <component id="57634" class="fr.socolin.applicationinsights.ui.components.ColorBox" binding="eventColorBox" custom-create="true">
             <constraints>
               <grid row="0" column="10" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+          </component>
+          <component id="57635" class="fr.socolin.applicationinsights.ui.components.ColorBox" binding="pageViewColorBox" custom-create="true">
+            <constraints>
+              <grid row="0" column="12" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
           </component>

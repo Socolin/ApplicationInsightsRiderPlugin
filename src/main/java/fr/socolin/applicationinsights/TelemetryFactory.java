@@ -32,6 +32,7 @@ public class TelemetryFactory {
             case Message -> gson.fromJson(data, MessageData.class);
             case Request -> gson.fromJson(data, RequestData.class);
             case Exception -> gson.fromJson(data, ExceptionData.class);
+            case PageView -> gson.fromJson(data, PageViewData.class);
             case Metric -> gson.fromJson(data, MetricData.class);
             case RemoteDependency -> gson.fromJson(data, RemoteDependencyData.class);
             case Event -> gson.fromJson(data, EventData.class);

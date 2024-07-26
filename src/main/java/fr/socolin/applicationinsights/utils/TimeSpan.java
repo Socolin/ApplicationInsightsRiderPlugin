@@ -23,7 +23,10 @@ public class TimeSpan implements Comparable<TimeSpan> {
         hours = Integer.parseInt(hourMinuteSeconds[0]);
         minutes = Integer.parseInt(hourMinuteSeconds[1]);
         seconds = Integer.parseInt(hourMinuteSeconds[2]);
-        milliseconds = Integer.parseInt(split[1].substring(0, 3));
+        if (split.length > 1)
+            milliseconds = Integer.parseInt(split[1].substring(0, 3));
+        else
+            milliseconds = 0;
         total = hours * 3_600_000L + minutes * 60_000L + seconds * 1_000L + milliseconds;
     }
 

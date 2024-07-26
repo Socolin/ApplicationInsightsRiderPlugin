@@ -2,6 +2,7 @@ package fr.socolin.applicationinsights;
 
 import com.google.gson.JsonObject;
 import fr.socolin.applicationinsights.metricdata.ITelemetryData;
+import fr.socolin.applicationinsights.metricdata.PageViewData;
 import fr.socolin.applicationinsights.metricdata.RemoteDependencyData;
 import fr.socolin.applicationinsights.metricdata.RequestData;
 import fr.socolin.applicationinsights.utils.TimeSpan;
@@ -111,6 +112,10 @@ public class Telemetry {
         } else if (getType() == TelemetryType.RemoteDependency) {
             RemoteDependencyData remoteDependencyData = getData(RemoteDependencyData.class);
             return new TimeSpan(remoteDependencyData.duration);
+        } else if (getType() == TelemetryType.PageView) {
+            PageViewData pageViewData = getData(PageViewData.class);
+            if (pageViewData.duration != null)
+                return new TimeSpan(pageViewData.duration);
         }
         return TimeSpan.Zero;
     }
