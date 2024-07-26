@@ -22,7 +22,7 @@ jobs:
         distribution: 'corretto'
         java-version: 17
     - name: Build stable version
-      run: gradle buildPlugin -PintellijPublishToken=unk
+      run: gradle :buildPlugin
     - name: Unpack Distribution
       shell: pwsh
       run: scripts/Unpack-Distribution.ps1
