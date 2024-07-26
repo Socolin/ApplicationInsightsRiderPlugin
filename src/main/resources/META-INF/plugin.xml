@@ -4,6 +4,16 @@
     <name>Application Insights Debug Log Viewer</name>
     <vendor email="provost.bertrand@gmail.com" url="https://socolin.fr">Socolin</vendor>
 
+    <description><![CDATA[
+    Application Insights Viewer for Rider
+
+    View Application Insights logs instantly within JetBrains Rider.
+
+    Usage: Start a debug session with an Application Insights-enabled program.
+    Logs will automatically appear in a new tab.
+    ]]>
+    </description>
+
     <depends>com.intellij.modules.rider</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.xdebugger</depends>
