@@ -29,7 +29,7 @@ public class ClearTextFieldExtension implements ExtendableTextComponent.Extensio
     }
 
     @Override
-    public Runnable getActionOnClick(@NotNull InputEvent inputEvent) {
+    public Runnable getActionOnClick() {
         return textField.getText().isEmpty() ? null : () -> textField.setText(null);
     }
 }

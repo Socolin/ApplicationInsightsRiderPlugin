@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ApplicationInsightsSession {
@@ -162,15 +161,12 @@ public class ApplicationInsightsSession {
         synchronized (telemetries) {
             filteredTelemetries.clear();
             Stream<Telemetry> stream = telemetries.stream().filter(this::isTelemetryVisible);
-            switch (AppSettingState.getInstance().filterTelemetryMode.getValue()) {
-                case DURATION:
-                    stream = stream.sorted(Comparator.comparing(Telemetry::getDuration));
-                    break;
-                case TIMESTAMP:
-                    stream = stream.sorted(Comparator.comparing(Telemetry::getTimestamp));
-                    break;
-            }
-            filteredTelemetries.addAll(stream.collect(Collectors.toList()));
+            stream = switch (AppSettingState.getInstance().filterTelemetryMode.getValue()) {
+                case DURATION -> stream.sorted(Comparator.comparing(Telemetry::getDuration));
+                case TIMESTAMP -> stream.sorted(Comparator.comparing(Telemetry::getTimestamp));
+                default -> stream;
+            };
+            filteredTelemetries.addAll(stream.toList());
         }
         if (appInsightsToolWindow != null)
             appInsightsToolWindow.setTelemetries(telemetries, filteredTelemetries);

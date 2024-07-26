@@ -22,16 +22,14 @@ public class ApplicationInsightsSessionManager {
     }
 
     @Nullable
-    public ApplicationInsightsSession startSession(XDebugProcess debugProcess) {
+    public void startSession(XDebugProcess debugProcess) {
         if (!(debugProcess instanceof DotNetDebugProcess))
-            return null;
+            return;
 
         ApplicationInsightsSession applicationInsightsSession = new ApplicationInsightsSession(
                 telemetryFactory,
                 (DotNetDebugProcess) debugProcess
         );
         applicationInsightsSession.startListeningToOutputDebugMessage();
-
-        return applicationInsightsSession;
     }
 }
