@@ -45,6 +45,8 @@ val riderSdkPath by lazy {
 dependencies {
     intellijPlatform {
         rider(riderSdkVersion)
+        plugin("com.intellij.modules.json:243.20847.40")
+        bundledPlugins("com.intellij.modules.json")
         jetbrainsRuntime()
         instrumentationTools()
         testFramework(TestFrameworkType.Platform.Bundled)
@@ -54,7 +56,7 @@ dependencies {
 
 kotlin {
     jvmToolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

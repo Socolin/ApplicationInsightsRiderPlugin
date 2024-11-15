@@ -17,6 +17,7 @@
     <depends>com.intellij.modules.rider</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.xdebugger</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <resource-bundle>messages.ApplicationInsightsBundle</resource-bundle>
 

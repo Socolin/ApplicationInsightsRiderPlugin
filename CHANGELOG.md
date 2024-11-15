@@ -1,5 +1,11 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [2024.3.0] - 2024-11-xx
+
+* Support Rider 2024.3
+* Add JSON module dependency
+* Upgrade Java version to 21
+
 ## [2024.2.0] - 2024-07-26
 
 * Support Rider 2024.2-eap8
