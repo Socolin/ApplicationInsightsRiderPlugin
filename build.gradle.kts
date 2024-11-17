@@ -31,6 +31,7 @@ val pluginVersion: String by project
 val riderSdkVersion: String by project
 val untilBuildVersion: String by project
 val buildConfiguration: String by project
+val intelijiJsonModuleVersion: String by project
 
 version = pluginVersion
 
@@ -45,7 +46,7 @@ val riderSdkPath by lazy {
 dependencies {
     intellijPlatform {
         rider(riderSdkVersion)
-        plugin("com.intellij.modules.json:243.20847.40")
+        plugin("com.intellij.modules.json:$intelijiJsonModuleVersion")
         bundledPlugins("com.intellij.modules.json")
         jetbrainsRuntime()
         instrumentationTools()
