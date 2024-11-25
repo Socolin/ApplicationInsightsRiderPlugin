@@ -9,6 +9,8 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.json.JsonFileType;
 import com.intellij.json.JsonLanguage;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
@@ -110,7 +112,7 @@ public class AppInsightsToolWindow {
     @NotNull
     private JScrollPane logsScrollPane;
     @NotNull
-    private ActionToolbarImpl toolbar;
+    private JComponent toolbar;
     @NotNull
     private JComponent editorPanel;
     @NotNull
@@ -460,7 +462,8 @@ public class AppInsightsToolWindow {
         eventColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.CustomEvents", JBColor.cyan));
         pageViewColorBox = new ColorBox(JBColor.namedColor("ApplicationInsights.TelemetryColor.PageView", JBColor.yellow));
 
-        toolbar = createToolbar();
+        var toolbar = createToolbar();
+        this.toolbar = toolbar.getComponent();
         toolbar.setTargetComponent(mainPanel);
 
         jsonPreviewDocument = new LanguageTextField.SimpleDocumentCreator().createDocument("", JsonLanguage.INSTANCE, project);
@@ -478,7 +481,7 @@ public class AppInsightsToolWindow {
     }
 
     @NotNull
-    private ActionToolbarImpl createToolbar() {
+    private ActionToolbar createToolbar() {
         final DefaultActionGroup actionGroup = new DefaultActionGroup();
 
         actionGroup.add(new OptionsToolbarAction(() -> toolbar));
@@ -521,7 +524,7 @@ public class AppInsightsToolWindow {
             }
         });
 
-        return new ActionToolbarImpl("ApplicationInsights", actionGroup, false);
+        return ActionManager.getInstance().createActionToolbar("ApplicationInsights", actionGroup, false);
     }
 
 }

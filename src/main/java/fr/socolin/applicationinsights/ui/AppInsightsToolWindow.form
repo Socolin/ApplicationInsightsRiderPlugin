@@ -265,7 +265,7 @@
           </component>
         </children>
       </grid>
-      <component id="59f60" class="com.intellij.openapi.actionSystem.impl.ActionToolbarImpl" binding="toolbar" custom-create="true">
+      <component id="59f60" class="javax.swing.JComponent" binding="toolbar" custom-create="true">
         <constraints>
           <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="2" anchor="9" fill="0" indent="0" use-parent-layout="false">
             <preferred-size width="30" height="-1"/>
