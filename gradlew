@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# SPDX-License-Identifier: Apache-2.0
+#
 
 ##############################################################################
 #
@@ -84,7 +86,8 @@ done
 # shellcheck disable=SC2034
 APP_BASE_NAME=${0##*/}
 # Discard cd standard output in case $CDPATH is set (https://github.com/gradle/gradle/issues/25036)
-APP_HOME=$( cd "${APP_HOME:-./}" > /dev/null && pwd -P ) || exit
+APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s
+' "$PWD" ) || exit
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD=maximum
@@ -122,32 +125,32 @@ JVM_TEMP_FILE=$BUILD_DIR/gradle-jvm-temp.tar.gz
 if [ "$darwin" = "true" ]; then
     case $JVM_ARCH in
     x86_64)
-        JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.5_macos-x64_bin.tar.gz
-        JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.5_macos-x64_bin-1bcf03
+        JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.3_macos-x64_bin.tar.gz
+        JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.3_macos-x64_bin-6c24ae
         ;;
     arm64)
-        JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.5_macos-aarch64_bin.tar.gz
-        JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.5_macos-aarch64_bin-297fa2
+        JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.3_macos-aarch64_bin.tar.gz
+        JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.3_macos-aarch64_bin-612aa7
         ;;
-    *)
+    *) 
         die "Unknown architecture $JVM_ARCH"
         ;;
     esac
 elif [ "$cygwin" = "true" ] || [ "$msys" = "true" ]; then
-    JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.5_windows-x64_bin.zip
-    JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.5_windows-x64_bin-d6ede5
+    JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.3_windows-x64_bin.zip
+    JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.3_windows-x64_bin-125c41
 else
     JVM_ARCH=$(linux$(getconf LONG_BIT) uname -m)
      case $JVM_ARCH in
         x86_64)
-            JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.5_linux-x64_bin.tar.gz
-            JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.5_linux-x64_bin-9324ae
+            JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.3_linux-x64_bin.tar.gz
+            JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.3_linux-x64_bin-5412b9
             ;;
         aarch64)
-            JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.5_linux-aarch64_bin.tar.gz
-            JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.5_linux-aarch64_bin-319da6
+            JVM_URL=https://download.oracle.com/java/21/archive/jdk-21.0.3_linux-aarch64_bin.tar.gz
+            JVM_TARGET_DIR=$BUILD_DIR/jdk-21.0.3_linux-aarch64_bin-7910df
             ;;
-        *)
+        *) 
             die "Unknown architecture $JVM_ARCH"
             ;;
         esac
@@ -182,7 +185,7 @@ else
     *".zip") unzip "$JVM_TEMP_FILE" -d "$JVM_TARGET_DIR" ;;
     *) tar -x -f "$JVM_TEMP_FILE" -C "$JVM_TARGET_DIR" ;;
   esac
-
+  
   rm -f "$JVM_TEMP_FILE"
 
   echo "$JVM_URL" >"$JVM_TARGET_DIR/.flag"

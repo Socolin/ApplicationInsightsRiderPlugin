@@ -14,6 +14,14 @@ plugins {
     id("java")
 }
 
+jvmWrapper {
+    linuxAarch64JvmUrl = "https://download.oracle.com/java/21/archive/jdk-21.0.3_linux-aarch64_bin.tar.gz"
+    linuxX64JvmUrl = "https://download.oracle.com/java/21/archive/jdk-21.0.3_linux-x64_bin.tar.gz"
+    macAarch64JvmUrl = "https://download.oracle.com/java/21/archive/jdk-21.0.3_macos-aarch64_bin.tar.gz"
+    macX64JvmUrl = "https://download.oracle.com/java/21/archive/jdk-21.0.3_macos-x64_bin.tar.gz"
+    windowsX64JvmUrl = "https://download.oracle.com/java/21/archive/jdk-21.0.3_windows-x64_bin.zip"
+}
+
 allprojects {
     repositories {
         mavenCentral()
@@ -29,7 +37,6 @@ repositories {
 
 val pluginVersion: String by project
 val riderSdkVersion: String by project
-val untilBuildVersion: String by project
 val buildConfiguration: String by project
 val intelijiJsonModuleVersion: String by project
 
@@ -45,12 +52,11 @@ val riderSdkPath by lazy {
 
 dependencies {
     intellijPlatform {
-        rider(riderSdkVersion)
+        rider(riderSdkVersion, useInstaller = false)
         plugin("com.intellij.modules.json:$intelijiJsonModuleVersion")
         bundledPlugins("com.intellij.modules.json")
         jetbrainsRuntime()
-        instrumentationTools()
-        testFramework(TestFrameworkType.Platform.Bundled)
+        testFramework(TestFrameworkType.Bundled)
     }
     testImplementation(libs.openTest4J)
 }
@@ -70,8 +76,11 @@ sourceSets {
 }
 
 tasks {
+    wrapper {
+        gradleVersion = "8.13"
+        distributionType = Wrapper.DistributionType.ALL
+    }
     patchPluginXml {
-        untilBuild.set(untilBuildVersion)
         val latestChangelog = try {
             changelog.getUnreleased()
         } catch (_: MissingVersionException) {

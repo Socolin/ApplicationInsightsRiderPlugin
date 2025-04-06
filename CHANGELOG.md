@@ -1,5 +1,9 @@
 # ApplicationInsights Debug Log Viewer Changelog
 
+## [2025.1.0] - 2024-04-06
+
+* Support Rider 2025.1
+
 ## [2024.3.0] - 2024-11-xx
 
 * Support Rider 2024.3
