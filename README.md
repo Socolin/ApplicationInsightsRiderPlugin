@@ -1,3 +1,8 @@
+# DEPRECATION NOTICE:
+
+> [!WARNING]  
+> This plugin is now deprecated. A new plugin is available, see https://github.com/Socolin/ApplicationInsightsRiderPlugin/issues/27 for more information.
+
 # Application Insights Debug Log Viewer
 
 <!-- Plugin description -->
